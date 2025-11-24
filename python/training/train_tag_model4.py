@@ -73,7 +73,7 @@ parser.add_argument(
     "--csv_path",
     type=str,
     default=None,
-    help="Zusätzliches CSV"
+    help="CSV"
 )
 parser.add_argument(
     "--int_path",
