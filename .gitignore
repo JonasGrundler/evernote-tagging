@@ -28,3 +28,7 @@ venv/
 ####################
 *.log
 .DS_Store
+*.joblib
+*.Identifier
+python/test/data_test
+java/runner/src/test/resources/data_test/

@@ -1,0 +1,75 @@
+FROM python:3.12-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libgl1 \
+        libglib2.0-0 \
+        libsm6 \
+        libxrender1 \
+        libxext6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# --------    
+# services: requirements
+# --------    
+
+# image-to-text service
+WORKDIR /app
+COPY python/requirements.cpu.txt .
+RUN pip install --no-cache-dir -r requirements.cpu.txt
+RUN pip install --no-cache-dir "torch==2.9.1" --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir "torchvision==0.24.1" --index-url https://download.pytorch.org/whl/cpu
+
+# --------    
+# services: rest
+# --------    
+
+# image-to-text service
+WORKDIR /app/image_to_text
+COPY python/image_to_text/*.py .
+
+# inference service
+WORKDIR /app/inference
+COPY python/inference/*.py .
+
+# training service
+WORKDIR /app/training
+COPY python/training/*.py .
+
+# trocr service
+WORKDIR /app/trocr
+COPY python/trocr/*.py .
+
+# --------    
+# cosolidated server
+# --------
+WORKDIR /app
+COPY python/*.py .
+
+
+# --------    
+# paddle reinladen
+# --------
+
+RUN python - << 'EOF'
+    from paddleocr import PaddleOCR
+    # oder deine ocr_images-Init-Logik
+    ocr = PaddleOCR(det_model_dir=None, rec_model_dir=None, use_angle_cls=False, lang='german')
+EOF
+
+
+# --------    
+# config
+# --------
+
+# optional - default ist das home-verzeichnis des users
+# in das DATA-Verzeichnis werden Files unter .jg-evernote gespeichert
+ENV DATA=/data
+
+# --------    
+# cosolidated server
+# --------
+EXPOSE 8000
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]

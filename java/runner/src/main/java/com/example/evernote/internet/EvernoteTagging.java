@@ -12,6 +12,7 @@ import com.evernote.edam.type.NoteSortOrder;
 import com.evernote.edam.type.Resource;
 import com.example.evernote.BuildCSV;
 import com.example.evernote.LocalStore;
+import com.example.evernote.ServicesClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.imageio.ImageIO;
@@ -30,10 +31,6 @@ import java.util.*;
 
 public class EvernoteTagging {
 
-    private InferenceClient inferenceClientAll;
-    private InferenceClient inferenceClient4;
-    private InferenceClient inferenceClient1;
-
     private InternetHelper internetHelper;
 
     private TrainingClient tc;
@@ -50,9 +47,6 @@ public class EvernoteTagging {
     private EvernoteTagging(boolean reTag) throws Exception {
         this.reTag = reTag;
         internetHelper = new InternetHelper();
-        inferenceClientAll = new InferenceClient(ModelInfo.SCENARIO_ALL);
-        inferenceClient4 = new InferenceClient(ModelInfo.SCENARIO_PART);
-        inferenceClient1 = new InferenceClient(ModelInfo.SCENARIO_LATEST);
 
         tc = new TrainingClient();
 
@@ -131,9 +125,9 @@ public class EvernoteTagging {
         }
     }
 
-    public void train() throws IOException {
+    public void train() throws Exception {
         for (ModelInfo mi : ModelInfo.values()) {
-            tc.train(mi);
+            tc.train(mi.getScenario());
         }
     }
 
@@ -463,9 +457,9 @@ public class EvernoteTagging {
 
     private String setTagsFromPredictions(Note note) {
         String line = "";
-        String predictedTagsAll = null;
-        String predictedTags4 = null;
-        String predictedTags1 = null;
+        List<String> predictedTagsAll = null;
+        List<String> predictedTags4 = null;
+        List<String> predictedTags1 = null;
         try {
             internetHelper.parseAndWrite(note);
 
@@ -476,18 +470,18 @@ public class EvernoteTagging {
             File csv = new File (internetHelper.getTargetDir().toFile(), note.getGuid() + ".csv");
             line = BuildCSV.writeSingleLine(csv, internetHelper.getTargetDir().toFile(), note.getGuid(), String.valueOf(zdt.getYear()));
             System.out.println("csvLine:" + csv.getAbsolutePath());
-            predictedTagsAll = inferenceClientAll.infer(csv);
-            predictedTags4 = inferenceClient4.infer(csv);
-            predictedTags1 = inferenceClient1.infer(csv);
+            predictedTagsAll = ServicesClient.getSingleton().infer(ModelInfo.SCENARIO_ALL.getScenario(), csv.getAbsolutePath());
+            predictedTags4 = ServicesClient.getSingleton().infer(ModelInfo.SCENARIO_PART.getScenario(), csv.getAbsolutePath());
+            predictedTags1 = ServicesClient.getSingleton().infer(ModelInfo.SCENARIO_LATEST.getScenario(), csv.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
         if (predictedTagsAll != null) {
 
             Set<String> allPredictedTags = new HashSet<>();
-            allPredictedTags.addAll(Arrays.asList(predictedTagsAll.split(",")));
-            allPredictedTags.addAll(Arrays.asList(predictedTags4.split(",")));
-            allPredictedTags.addAll(Arrays.asList(predictedTags1.split(",")));
+            allPredictedTags.addAll(predictedTagsAll);
+            allPredictedTags.addAll(predictedTags4);
+            allPredictedTags.addAll(predictedTags1);
 
             Set<String> selectedPredictedTagsGuids = new HashSet<>();
             for (String t : allPredictedTags) {
@@ -603,7 +597,7 @@ public class EvernoteTagging {
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
                             ImageIO.write(top, "png", baos);          // Format wählen
                             baos.flush();
-                            String json = TrOcrClient.getSingleton().ocr(baos.toByteArray());
+                            String json = ServicesClient.getSingleton().ocr(baos.toByteArray());
                             System.out.println("trocr:" + json);
                             ObjectMapper om = new ObjectMapper();
                             String text = om.readTree(json).path("text").asText();

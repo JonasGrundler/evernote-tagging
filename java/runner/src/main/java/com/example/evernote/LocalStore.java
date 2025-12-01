@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 public class LocalStore {
 
@@ -20,6 +21,8 @@ public class LocalStore {
     private final Path internet_single_tagged;
     private final Path internet_single_csv;
     private final Path internet_single_training;
+
+    private final Path model;
 
     private final Path images_tmp;
 
@@ -39,10 +42,8 @@ public class LocalStore {
 
     private LocalStore() throws IOException {
 
-        //test
-        //base = create("C:\\Users\\Jonas\\Downloads\\0", ".jg-evernote");
-
-        base = create(Paths.get(System.getProperty("user.home")).toString(), ".jg-evernote");
+        base = create(Paths.get(System.getenv().getOrDefault("DATA", System.getProperty("user.home"))).toString(), ".jg-evernote");
+        System.out.println("data:" + base.toString());
 
         enex_batch = create(base.toString(), "enex-batch");
         enex_batch_csv = create(enex_batch.toString(), "csv");
@@ -55,6 +56,8 @@ public class LocalStore {
         internet_single_tagged = create(internet_single.toString(), "tagged");
         internet_single_csv = create(internet_single.toString(), "csv");
         internet_single_training= create(internet_single.toString(), "training");
+
+        model = create(base.toString(), "model_artifacts");
 
         images_tmp = create(base.toString(), "images-tmp");
 
@@ -95,6 +98,8 @@ public class LocalStore {
     public Path getInternet_single_csv() { return internet_single_csv; }
 
     public Path getInternet_single_training() { return internet_single_training; }
+
+    public Path getModel() { return model; }
 
     public Path getImages_tmp() { return images_tmp; }
 

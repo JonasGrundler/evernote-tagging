@@ -11,9 +11,6 @@ public class ImageToText {
     private static final int IMG_MIN_WIDTH = 500;
     private static final int IMG_MIN_HEIGHT = 100;
 
-    private BufferedWriter pyIn;
-    private BufferedReader pyOut;
-
     private static final ImageToText singleton;
 
     static {
@@ -31,36 +28,13 @@ public class ImageToText {
     }
 
     private ImageToText() throws Exception {
-        ProcessBuilder pb = new ProcessBuilder(System.getenv("PYTHON") + "\\python", System.getenv("PADDLE_DIR") + "\\image_to_text.py");
-        pb.redirectErrorStream(true);
-
-        Process process = pb.start();
-
-        pyIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8));
-        pyOut = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
-
-        // ocr ready
-        String line = null;
-        while ((line = pyOut.readLine()) == null || ! line.trim().equals("ocr ready")) {
-            if (line != null && line.trim().length() > 0)
-            System.out.println("line:" + line);
-        }
-        System.out.println("line:" + line);
-
     }
 
     public void parseImages(EvernoteDoc enDoc, int images) {
         System.out.println("processing " + images + " images");
         if (images > 0) {
             try {
-                String line;
-                while ((line = pyOut.readLine()) == null || ! line.trim().equals("waiting"));
-                pyIn.write(LocalStore.getSingleton().getImages_tmp().toString());
-                pyIn.write("|");
-                pyIn.write(String.valueOf(images));
-                pyIn.newLine();
-                pyIn.flush();
-                while ((line = pyOut.readLine()) == null || ! line.trim().equals("done"));
+                ServicesClient.getSingleton().ocrImages(images);
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }

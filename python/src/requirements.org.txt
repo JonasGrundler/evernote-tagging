@@ -1,0 +1,8 @@
+# nur server.py
+uvicorn
+transformers
+fastapi
+pydantic
+pillow
+torch
+python-multipart

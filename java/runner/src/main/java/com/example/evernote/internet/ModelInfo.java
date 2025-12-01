@@ -1,21 +1,55 @@
 package com.example.evernote.internet;
 
-public enum ModelInfo {
+import com.example.evernote.LocalStore;
 
-    SCENARIO_ALL   (0, "v7_c40",       "100", java.time.Duration.ofDays(30).toMillis(), 1, 4),
-    SCENARIO_PART  (1, "v8_c40_2020",  "50", java.time.Duration.ofDays(1).toMillis(), 1, 6),
-    SCENARIO_LATEST(2, "v8_c40_2024",  "10", 0, 0, 23);
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
+public enum
+ModelInfo {
+
+    SCENARIO_ALL   (0),
+    SCENARIO_PART  (1),
+    SCENARIO_LATEST(2);
+
+    static {
+        File file = new File(LocalStore.getSingleton().getMappings().toFile(), "ModelInfo.properties");
+        try (var in = new FileInputStream(file)) {
+            Properties props = new Properties();
+            props.load(in);
+
+            // Für jede Konstante die Werte aus den Properties holen
+            for (ModelInfo t : values()) {
+                String prefix = t.getScenario()+ ".";
+
+                t.init(
+                        props.getProperty(prefix + "suffix"),
+                        Integer.parseInt(props.getProperty(prefix + "lastPercentage")),
+                        Long.parseLong(props.getProperty(prefix + "maxAgeMs")),
+                        Integer.parseInt(props.getProperty(prefix + "hTrainingStartAllowedMin")),
+                        Integer.parseInt(props.getProperty(prefix + "hTrainingStartAllowedMax"))
+                );
+            }
+
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private final int scenario;
-    private final String suffix;
-    private final String lastPercentage;
-    private final long maxAgeMs;
-    private final int hTrainingStartAllowedMin;
-    private final int hTrainingStartAllowedMax;
+    private String suffix;
+    private int lastPercentage;
+    private long maxAgeMs;
+    private int hTrainingStartAllowedMin;
+    private int hTrainingStartAllowedMax;
 
-    ModelInfo(int scenario, String suffix, String lastPercentage, long maxAgeMs,
-              int hTrainingStartAllowedMin, int hTrainingStartAllowedMax) {
+    ModelInfo(int scenario) {
         this.scenario = scenario;
+    }
+
+    private void init(String suffix, int lastPercentage, long maxAgeMs,
+              int hTrainingStartAllowedMin, int hTrainingStartAllowedMax) {
         this.suffix = suffix;
         this.lastPercentage = lastPercentage;
         this.maxAgeMs = maxAgeMs;
@@ -31,7 +65,7 @@ public enum ModelInfo {
         return suffix;
     }
 
-    public String getLastPercentage() {
+    public int getLastPercentage() {
         return lastPercentage;
     }
 
@@ -47,7 +81,6 @@ public enum ModelInfo {
         return hTrainingStartAllowedMax;
     }
 
-    // Optional: damit du von int -> Enum kommst
     public static ModelInfo fromScenario(int scenario) {
         for (ModelInfo mi : values()) {
             if (mi.scenario == scenario) {
@@ -57,19 +90,3 @@ public enum ModelInfo {
         throw new IllegalArgumentException("Unknown ModelInfo scenario: " + scenario);
     }
 }
-
-/*
-public class ModelInfo {
-
-    public static final int SCENARIO_ALL = 0;
-    public static final int SCENARIO_PART = 1;
-    public static final int SCENARIO_LATEST = 2;
-
-    public static final String[] V_SUFFIX = new String[]{"v7_c40", "v8_c40_2020", "v8_c40_2024"};
-    public static final String[] V_LAST_PERCENTAGE = new String[]{"100", "50", "10"};
-
-    public ModelInfo() {
-    }
-
-}
-*/
