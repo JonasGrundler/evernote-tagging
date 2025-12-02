@@ -1,0 +1,6 @@
+file:411-1989.enex
+title:1989.0001 Badische Beamtenbank eG Sparbuch Jonas
+author:null
+tags:BBBank eG
+source:mobile.android
+created:20160107T201714Z
