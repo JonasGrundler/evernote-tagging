@@ -67,9 +67,6 @@ done
 #   - VENV_PATH  = Pfad zur gewünschten Venv
 #   - DATA_DIR   = Pfad zum DATA-Verzeichnis
 
-# DATA-Env-Var für uvicorn server
-export DATA
-
 echo "Starte Server mit folgenden Parametern:"
 echo "  MODE        = $MODE"
 echo "  DO_INSTALL  = $DO_INSTALL"

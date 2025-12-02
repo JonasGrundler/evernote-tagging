@@ -50,7 +50,7 @@ PIPELINE   = [None] * (len(model_info.MODEL_INFO))
 MLB        = [None] * (len(model_info.MODEL_INFO))
 THRESHOLDS = [None] * (len(model_info.MODEL_INFO))
 
-print("[Info] Lade Modelle...")
+print("[Info] Lade Modelle..." + local_store.PATHS[local_store.MODEL_ARTIFACTS])
 for idx in model_info.MODEL_INFO:
     print(f"  Modell {idx}: Suffix = {model_info.MODEL_INFO[idx][model_info.SUFFIX]}")
     pipe, mlb, th = load_model_artifacts(

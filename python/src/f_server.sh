@@ -99,6 +99,7 @@ start_server_foreground() {
   prepare_python_call "$1"
 
   (
+    export DATA
     cd "$SRC"
     echo "Starte Uvicorn im Vordergrund (Strg-C zum Beenden)..."
     exec python3 -m uvicorn server:app --reload --host 0.0.0.0 --port 8000

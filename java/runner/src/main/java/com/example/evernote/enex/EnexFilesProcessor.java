@@ -17,7 +17,6 @@ public class EnexFilesProcessor {
         int redo = EnDocHelper.REDO_NOT;
 
         try {
-
             File enexFiles = LocalStore.getSingleton().getEnex_batch_exports().toFile();
             System.out.println("from:" + enexFiles.toString());
             for (File enexFile : enexFiles.listFiles()) {

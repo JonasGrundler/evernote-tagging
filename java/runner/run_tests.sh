@@ -4,6 +4,5 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/f_prepare_tests.sh"
-
-mvn test -Dtest=EnexFilesProcessorTest
+"$SCRIPT_DIR/run_services_tests.sh"
+"$SCRIPT_DIR/run_enex_tests.sh"

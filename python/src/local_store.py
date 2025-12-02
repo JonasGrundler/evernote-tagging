@@ -5,23 +5,23 @@ PATHS: dict[str, str] = {}
 
 BASE = "base"
 
-MODEL_ARTIFACTS = "model_artifacts"
+MODEL_ARTIFACTS = "model-artifacts"
 
-IMAGES_TMP = "images_tmp"
+IMAGES_TMP = "images-tmp"
 
 MAPPINGS = "mappings"
 
-ENEX_BATCH = "enex_batch"
-ENEX_BATCH_CSV = "enex_batch_csv"
-ENEX_BATCH_EXPORTS = "enex_batch_exports"
-ENEX_BATCH_PARSED = "enex_batch_parsed"
+ENEX_BATCH = "enex-batch"
+ENEX_BATCH_CSV = "enex-batch-csv"
+ENEX_BATCH_EXPORTS = "enex-batch-exports"
+ENEX_BATCH_PARSED = "enex-batch-parsed"
 
-INTERNET_SINGLE = "internet_single"
-INTERNET_SINGLE_NOTES = "internet_single_notes"
-INTERNET_SINGLE_OAUTH = "internet_single_oauth"
-INTERNET_SINGLE_TAGGED = "internet_single_tagged"
-INTERNET_SINGLE_CSV = "internet_single_csv"
-INTERNET_SINGLE_TRAINING = "internet_single_training"
+INTERNET_SINGLE = "internet-single"
+INTERNET_SINGLE_NOTES = "internet-single-notes"
+INTERNET_SINGLE_OAUTH = "internet-single-oauth"
+INTERNET_SINGLE_TAGGED = "internet-single_tagged"
+INTERNET_SINGLE_CSV = "internet-single-csv"
+INTERNET_SINGLE_TRAINING = "internet-single-training"
 
 PATHS[BASE] = os.path.join(os.getenv("DATA", Path.home()), ".jg-evernote")
 

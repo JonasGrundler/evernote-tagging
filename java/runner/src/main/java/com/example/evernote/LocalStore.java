@@ -57,7 +57,7 @@ public class LocalStore {
         internet_single_csv = create(internet_single.toString(), "csv");
         internet_single_training= create(internet_single.toString(), "training");
 
-        model = create(base.toString(), "model_artifacts");
+        model = create(base.toString(), "model-artifacts");
 
         images_tmp = create(base.toString(), "images-tmp");
 

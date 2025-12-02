@@ -1,4 +1,4 @@
-package com.example.evernote;
+package com.example.evernote.enex;
 
 public class EnDocsToCSVsTest {
 }
