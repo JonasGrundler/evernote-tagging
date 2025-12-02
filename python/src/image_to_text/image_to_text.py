@@ -53,8 +53,6 @@ def ocr_images(images: int):
         polys = det_dict["dt_polys"]
         scores = det_dict["dt_scores"]
 
-        print("x1")
-
         # 4) Originalbild öffnen
         img = Image.open(IMG_PATH).convert("RGB")
 
@@ -103,7 +101,6 @@ def ocr_images(images: int):
             if text.strip():
                 all_texts.append((text, rec_score, det_score))
 
-        print("x2")
         print("file:" + os.path.join(WORKING_DIR, str(i) + ".txt"))
 
         # 5) Ausgabe

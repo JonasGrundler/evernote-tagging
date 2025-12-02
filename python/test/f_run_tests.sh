@@ -3,7 +3,11 @@ if [[ -z "$TEST" ]]; then
   return 1
 fi
 if [[ -z "$DATA" ]]; then
-  echo "TEST ist nicht gesetzt!"
+  echo "DATA ist nicht gesetzt!"
+  return 1
+fi
+if [[ -z "$DATA_SOURCE" ]]; then
+  echo "DATA_SOURCE ist nicht gesetzt!"
   return 1
 fi
 
@@ -17,43 +21,221 @@ prepare_tests_env
 
 run_tests() {
   if $DO_TRAIN; then
-      echo "Führe Trainings-Tests durch..."
-      # Testaufrufe zum Trainieren der Modelle
-      curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 0}'
-      curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 1}'
-      curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 2}'
-      echo ""
+    do_training
   fi
 
   if $DO_INFER; then
-      echo "Führe Inferenz-Tests durch..."
-      # Testaufrufe für Inferenz
-      for csv_file in "$DATA"/.jg-evernote/internet-single/notes/*.csv; do
-      # falls kein Match -> Literal, überspringen
-      [ -e "$csv_file" ] || continue
-
-          for scenario in 0 1 2; do
-              echo "Rufe /infer auf: scenario=$scenario, csv_path=$csv_file"
-              curl -X POST "http://localhost:8000/infer" \
-              -H "Content-Type: application/json" \
-              -d "{\"scenario\": $scenario, \"csv_path\": \"${csv_file}\"}"
-              echo ""
-          done
-      done
+    do_infer
   fi
 
   if $DO_IMAGE_TO_TEXT; then
-      echo "Führe Image-to-Text-Tests durch..."
-      curl -X POST "http://localhost:8000/ocr_images" \
-      -H "Content-Type: application/json" \
-      -d '{"images": 4}'
-      echo ""
+    do_image_to_text
   fi
 
   if $DO_TROCR; then
-      curl -X POST "http://localhost:8000/ocr" \
-        -H "accept: application/json" \
-      -F "file=@${DATA}/.jg-evernote/images-tmp/4.png;filename=image.png;type=application/octet-stream"
-      echo ""
+    do_trocr
+  fi
+}
+
+do_training () {
+  echo "Führe Trainings-Tests durch..."
+
+  EPOCH=$(date +%s)
+
+  # Testaufrufe zum Trainieren der Modelle
+  curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 0}'
+  curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 1}'
+  curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 2}'
+    
+  echo ""
+ 
+  compare_folders "$DATA_SOURCE/.jg-evernote/model-artifacts" "$DATA/.jg-evernote/model-artifacts" $EPOCH
+}
+
+do_infer () {
+  echo "Führe Inferenz-Tests durch..."
+  INFER_TABLE="$TEST/test_support/infer_table.txt"
+  BASE_NOTES_DIR="$DATA/.jg-evernote/internet-single/notes"
+
+  all_ok=true
+
+  # Tabelle zeilenweise lesen
+  while IFS='|' read -r id scenario expected_json; do
+
+    expected_json=${expected_json%$'\r'}
+
+    csv_file="$BASE_NOTES_DIR/$id.csv"
+
+    if [ ! -f "$csv_file" ]; then
+      echo "⚠ CSV fehlt: $csv_file"
+      all_ok=false
+      continue
+    fi
+
+    echo "Teste id=$id, scenario=$scenario"
+
+    # JSON-Payload bauen (ohne Anführungs-Quoting-Hölle)
+    payload=$(printf '{"scenario": %s, "csv_path": "%s"}' "$scenario" "$csv_file")
+
+    # Service aufrufen
+    response=$(curl -s -X POST "http://localhost:8000/infer" \
+      -H "Content-Type: application/json" \
+      -d "$payload")
+
+    # --- einfache Variante: 1:1 String-Vergleich ---
+    if [ "$response" = "$expected_json" ]; then
+      echo "  ✅ OK"
+    else
+      echo "  ❌ Mismatch"
+      echo "    expected: $expected_json"
+      echo "    got:      $response"
+      all_ok=false
+    fi
+    echo
+
+  done < "$INFER_TABLE"
+
+  if $all_ok; then
+    echo "infer ok ✅"
+  else
+    echo "infer failed ❌"
+    exit 1
+  fi
+}
+
+do_image_to_text () {
+
+  EPOCH=$(date +%s)
+
+  echo "Führe Image-to-Text-Tests durch..."
+  curl -X POST "http://localhost:8000/ocr_images" \
+  -H "Content-Type: application/json" \
+  -d '{"images": 4}'
+  echo ""
+
+  compare_folders "$DATA_SOURCE/.jg-evernote/images-tmp" "$DATA/.jg-evernote/images-tmp" $EPOCH txt
+}
+
+do_trocr() {
+  echo "Führe TrOCR-Tests durch..."
+
+  TROCR_TABLE="$TEST/test_support/trocr_table.txt"
+  BASE_PNG_DIR="$DATA/.jg-evernote/images-tmp"
+  all_ok=true
+
+  # Tabelle zeilenweise lesen
+  while IFS='|' read -r id expected_json; do
+
+    expected_json=${expected_json%$'\r'}
+
+    png_file=""$BASE_PNG_DIR/$id.png""
+
+    if [ ! -f "$png_file" ]; then
+      echo "⚠ PNG fehlt: $png_file"
+      all_ok=false
+      continue
+    fi
+
+    echo "Teste id=$id"
+
+    # JSON-Payload bauen (ohne Anführungs-Quoting-Hölle)
+    response=$(curl -X POST "http://localhost:8000/ocr" \
+    -H "accept: application/json" \
+    -F "file=@${png_file};filename=image.png;type=application/octet-stream")
+
+    # --- einfache Variante: 1:1 String-Vergleich ---
+    if [ "$response" = "$expected_json" ]; then
+      echo "  ✅ OK"
+    else
+      echo "  ❌ Mismatch"
+      echo "    expected: $expected_json"
+      echo "    got:      $response"
+      all_ok=false
+    fi
+    echo
+
+  done < "$TROCR_TABLE"
+
+  if $all_ok; then
+    echo "trocr ok ✅"
+  else
+    echo "trocr failed ❌"
+    exit 1
+  fi
+
+}
+
+compare_folders() {
+  # 1) Erstes Argument = DIR1, zweites = DIR2
+  local DIR1="$1"
+  local DIR2="$2"
+  local CUT_EPOCH=$3
+
+  sleep 1
+
+  # wenn weniger als 2 Argumente → Fehler
+  if [[ -z "$DIR1" || -z "$DIR2" ]]; then
+    echo "Usage: compare_folders DIR1 DIR2 [ext1 ext2 ...]" >&2
+    return 1
+  fi
+
+  # die restlichen Argumente sind die erlaubten Endungen (ohne Punkt)
+  shift 3
+  local exts=("$@")   # kann leer sein → dann alle Dateien
+
+  local all_ok=true
+
+  # Alle Dateien in DIR2 durchgehen
+  while IFS= read -r -d '' f2; do
+    # ggf. nach Endungen filtern
+    if ((${#exts[@]} > 0)); then
+      local ext match=false
+      ext="${f2##*.}"           # alles nach letztem Punkt
+
+      for e in "${exts[@]}"; do
+        if [[ "$ext" == "$e" ]]; then
+          match=true
+          break
+        fi
+      done
+
+      # wenn keine Extension passt → nächste Datei
+      $match || continue
+    fi
+
+    # relativen Pfad ermitteln
+    local rel="${f2#$DIR2/}"
+    local f1="$DIR1/$rel"
+
+    # 1) Gegenstück in DIR1 vorhanden?
+    if [ ! -f "$f1" ]; then
+      echo "Fehlt in DIR1: $rel"
+      all_ok=false
+      break
+    fi
+
+    # 2) Inhalt gleich?
+    if ! cmp -s "$f1" "$f2"; then
+      echo "Inhalt unterschiedlich: $rel"
+      all_ok=false
+      break
+    fi
+
+    # 3) mtime von f2 > CUT_EPOCH?
+    local mtime_f2
+    mtime_f2=$(stat -c %Y "$f2")
+    if [ "$mtime_f2" -le "$CUT_EPOCH" ]; then
+      echo "Zu alt (DIR2): $rel (mtime=$mtime_f2, cut=$CUT_EPOCH)"
+      all_ok=false
+      break
+    fi
+
+  done < <(find "$DIR2" -type f -print0)
+
+  if $all_ok; then
+    echo "compare ok ✅"
+  else
+    echo "compare failed ❌"
+    exit 1
   fi
 }

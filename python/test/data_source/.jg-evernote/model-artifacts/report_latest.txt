@@ -1,61 +1,20 @@
 === REPORT (micro/macro) ===
-                                precision    recall  f1-score   support
+                          precision    recall  f1-score   support
 
-                    APCOA FLOW       0.50      1.00      0.67         2
-                 Advanzia Bank       1.00      1.00      1.00         4
-                         Apple       1.00      1.00      1.00         8
-                           BMW       0.20      0.50      0.29         2
-                       Bauhaus       1.00      1.00      1.00         4
-                     Bernstein       0.38      1.00      0.55         3
-                           CGI       0.87      0.84      0.86        32
-                 Deutsche Bahn       1.00      1.00      1.00         2
-              Deutsche Telekom       0.90      1.00      0.95        18
-                        Google       0.91      1.00      0.95        10
-      HV Felbel Hausverwaltung       1.00      1.00      1.00         8
-HV Hahn+Keller Immobilien GmbH       0.50      1.00      0.67         1
-                          IKEA       0.57      1.00      0.73         4
-                         Jonas       0.00      0.00      0.00         2
-                           Jun       0.00      0.00      0.00         4
-                        Leonie       0.40      0.80      0.53         5
-                        Lilian       0.26      1.00      0.41         7
-                   Merz-Schule       1.00      0.93      0.97        15
-     MorganStanley SmithBarney       1.00      1.00      1.00         6
-                       Novatec       0.25      0.50      0.33         2
-             Nutzungsdauer.com       0.80      1.00      0.89         4
-                           OBI       1.00      0.67      0.80         3
-                        PayPal       0.93      0.98      0.95        41
-          Rechtsanwalt Lohmann       1.00      0.78      0.88         9
-                           SDK       0.75      0.60      0.67         5
-                SMP St. Gallen       0.71      0.83      0.77         6
-                           SSB       0.71      1.00      0.83         5
-                        Schufa       1.00      1.00      1.00        11
-                Sparda-Bank BW       0.64      1.00      0.78         7
-                        Steuer       0.53      0.67      0.59        36
-                   TFT Fliesen       1.00      1.00      1.00         1
-                        Tibber       1.00      0.67      0.80         6
-                      Vodafone       1.00      1.00      1.00         2
-                 WG-Gesucht.de       1.00      1.00      1.00        10
-          Waldschule Degerloch       0.86      0.75      0.80         8
-       Whg 1 Karl-Pfaff-Straße       0.38      0.43      0.40         7
-       Whg 2 Karl-Pfaff-Straße       0.33      0.67      0.44         6
-                 Whg Degerloch       0.40      0.44      0.42         9
-           Whg Leuschnerstraße       0.50      0.33      0.40        12
-           Whg Neue Weinsteige       1.00      0.67      0.80         3
-              Whg Schwabstraße       0.80      0.80      0.80         5
-           Whg Schwieberdingen       0.40      1.00      0.57         2
-                Whg Sonnenberg       1.00      0.67      0.80         3
-        Whgn Karl-Pfaff-Straße       0.28      0.83      0.42         6
-                        amazon       1.00      0.90      0.95        10
-                      bitpanda       1.00      1.00      1.00        73
-                   booking.com       1.00      0.71      0.83         7
-                    check24.de       1.00      1.00      1.00         3
-                       cloudHQ       1.00      1.00      1.00         6
-                    easyCredit       0.57      1.00      0.73         4
-                     fluege.de       0.00      0.00      0.00         0
-                           nan       0.08      0.33      0.13         3
-                         netgo       1.00      0.96      0.98        24
+                     CGI       0.75      1.00      0.86         3
+                  Google       1.00      1.00      1.00         3
+HV Felbel Hausverwaltung       1.00      1.00      1.00         5
+                  Leonie       0.88      1.00      0.93         7
+             Merz-Schule       1.00      1.00      1.00         8
+                  PayPal       0.00      0.00      0.00         0
+                     SSB       1.00      1.00      1.00         2
+                  Steuer       1.00      0.50      0.67         8
+     Whg Neue Weinsteige       0.60      0.75      0.67         4
+               fluege.de       1.00      1.00      1.00         1
+                     nan       0.62      1.00      0.77         5
+                   netgo       0.83      1.00      0.91        10
 
-                     micro avg       0.73      0.86      0.79       476
-                     macro avg       0.71      0.80      0.72       476
-                  weighted avg       0.81      0.86      0.82       476
-                   samples avg       0.79      0.88      0.81       476
+               micro avg       0.82      0.91      0.86        56
+               macro avg       0.81      0.85      0.82        56
+            weighted avg       0.88      0.91      0.88        56
+             samples avg       0.85      0.91      0.86        56

@@ -1,0 +1,33 @@
+Kryptographie, Codierung
+Proseminar
+Dozent:
+Prof. Dr. Wolfgang Kimmerle
+Institut:
+Mathematik B, 2. Lehrstuhl
+Beginn:
+Vorlesungsbeginn
+Zeit und Ort:
+noch nicht bekannt
+Inhalt:
+Einfihrung in die Kryptographie und Codierungs-
+theorie.
+Beides sind Gebiete, die bei der Datenübertragung
+und der Datensicherheit von groBer Bedeutung sind
+und daler zur Zeit unnittelbar Anwendung finden.
+Mit den in Analysis I,II und Lineare Algebra I.II er-
+lernten Grundkenntnissen ist ein Einstieg in diese ak-
+tuellen Gebiete leicht moglich:
+Stichworte einzelner Themen: Verschlisselung, Prim-
+zahlerzeugung: RSA-Verfahren, Faktorisierung und
+quadratisches Sieb, Diskrete Logarithnen. Lineare
+Codes
+J.Buchmann. Einfihrung in die Kryptographie.
+Literatur:
+Springer Verlag
+sowie die ersten Kapitel von: W.Willems. Codie-
+rungstheorie, de Gruyter
+Voraussetzungen:  Vorlesungen der ersten zwei Seinester
+Weiterführende
+Veranstaltungen: Vertiefende Vorlesungen zu den genannten Gebieten
+sowie Zahlentheorie und Algebra
+33
