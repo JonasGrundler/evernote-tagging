@@ -1,4 +1,3 @@
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -z "$SCRIPT_DIR" ]]; then
   echo "SCRIPT_DIR not set"
   exit 1
@@ -7,7 +6,7 @@ if [[ -z "$VENV_PATH" ]]; then
   VENV_PATH="$HOME/python-venv/.venv"
 fi
 SRC="$SCRIPT_DIR/../../python/src"
-TEST="$SCRIPT_DIR/src/test/resources"
+TEST="$SCRIPT_DIR/src/test/resources/$TESTENV"
 
 # ... initialisiert DATA (.../data_test) mit den Inhalten von DATA_SOURCE (.../data_source)
 source "$SRC/../test/f_prepare_tests.sh"

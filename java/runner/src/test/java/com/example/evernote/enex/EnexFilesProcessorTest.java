@@ -22,21 +22,8 @@ public class EnexFilesProcessorTest {
 
         EnexFilesProcessor.main(null);
 
-        /*
-        String csvPath = Paths.get(LocalStore.getSingleton().getInternet_single_notes().toString(), "d0f2188c-8ba1-4cce-b386-6b8c9cfc9d61.csv").toString();
+        // Überprüfung erfolgt per Directory-Compare
 
-        List<String> tags = client.infer(2, csvPath);
-        assertNotNull(tags, "Tags-Liste sollte nie null sein");
-
-        List<String> expected = new ArrayList<>();
-        expected.add("PayPal");
-        assertIterableEquals(expected, tags);
-        // Optional:
-        // assertFalse(tags.isEmpty(), "Tags-Liste sollte für dieses Test-CSV nicht leer sein");
-        System.out.println("Infer tags: " + tags);
-
-         */
     }
-
 
 }

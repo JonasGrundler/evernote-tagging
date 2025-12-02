@@ -31,4 +31,4 @@ venv/
 *.joblib
 *.Identifier
 python/test/data_test
-java/runner/src/test/resources/data_test/
+**/data_test/
