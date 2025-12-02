@@ -13,7 +13,6 @@ compare_folders() {
     all_ok=false
   else
     all_ok=true
-    sleep 1
     # wenn weniger als 2 Argumente → Fehler
     if [[ -z "$DIR1" || -z "$DIR2" ]]; then
       echo "Usage: compare_folders DIR1 DIR2 [ext1 ext2 ...]" >&2
@@ -31,12 +30,17 @@ compare_folders() {
         local ext match=false
         ext="${f2##*.}"           # alles nach letztem Punkt
 
-        for e in "${exts[@]}"; do
-          if [[ "$ext" == "$e" ]]; then
-            match=true
-            break
-          fi
-        done
+        if [[ ! "$f2" == *"Zone.Identifier" ]]; then
+          for e in "${exts[@]}"; do
+            if [[ "$ext" == "$e" ]]; then
+              match=true
+              break
+            fi
+          done
+        fi
+        if [[ "$f2" == *"Zone.Identifier" ]]; then
+          match=false
+        fi
 
         # wenn keine Extension passt → nächste Datei
         $match || continue

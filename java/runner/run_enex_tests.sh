@@ -10,16 +10,19 @@ source "$SCRIPT_DIR/f_prepare_tests.sh"
 source "$SRC/../test/f_test_utilities.sh"
 
 EPOCH=$(date +%s)
+sleep 1
 
 # EnexFilesProcessor
-#rm -rf "$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
-#mkdir "$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
-#mvn test -Dtest=EnexFilesProcessorTest
-#D1="$SCRIPT_DIR/src/test/resources/$TESTENV/data_source/.jg-evernote/enex-batch/parsed"
-#D2="$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
-#compare_folders $D1 $D2 $EPOCH
+rm -rf "$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
+mkdir "$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
+mvn test -Dtest=EnexFilesProcessorTest
+D1="$SCRIPT_DIR/src/test/resources/$TESTENV/data_source/.jg-evernote/enex-batch/parsed"
+D2="$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
+compare_folders $D1 $D2 $EPOCH
 
 # EnDocsToCSVsTest
+rm -rf "$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/csv"
+mkdir "$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/csv"
 mvn test -Dtest=EnDocsToCSVsTest
 D1="$SCRIPT_DIR/src/test/resources/$TESTENV/data_source/.jg-evernote/enex-batch/csv"
 D2="$SCRIPT_DIR/src/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/csv"

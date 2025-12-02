@@ -43,7 +43,8 @@ do_training () {
   echo "Führe Trainings-Tests durch..."
 
   EPOCH=$(date +%s)
-
+  sleep 1
+  
   # Testaufrufe zum Trainieren der Modelle
   curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 0}'
   curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"scenario": 1}'
