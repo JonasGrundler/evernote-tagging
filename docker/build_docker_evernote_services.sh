@@ -1,1 +1,0 @@
-docker build -f Dockerfile.services -t evernote-services ../src

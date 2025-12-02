@@ -17,7 +17,7 @@ RUN apt-get update && \
 
 # image-to-text service
 WORKDIR /app
-COPY python/requirements.cpu.txt .
+COPY python/src/requirements.cpu.txt .
 RUN pip install --no-cache-dir -r requirements.cpu.txt
 RUN pip install --no-cache-dir "torch==2.9.1" --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir "torchvision==0.24.1" --index-url https://download.pytorch.org/whl/cpu
@@ -28,25 +28,25 @@ RUN pip install --no-cache-dir "torchvision==0.24.1" --index-url https://downloa
 
 # image-to-text service
 WORKDIR /app/image_to_text
-COPY python/image_to_text/*.py .
+COPY python/src/image_to_text/*.py .
 
 # inference service
 WORKDIR /app/inference
-COPY python/inference/*.py .
+COPY python/src/inference/*.py .
 
 # training service
 WORKDIR /app/training
-COPY python/training/*.py .
+COPY python/src/training/*.py .
 
 # trocr service
 WORKDIR /app/trocr
-COPY python/trocr/*.py .
+COPY python/src/trocr/*.py .
 
 # --------    
 # cosolidated server
 # --------
 WORKDIR /app
-COPY python/*.py .
+COPY python/src/*.py .
 
 
 # --------    
@@ -54,9 +54,9 @@ COPY python/*.py .
 # --------
 
 RUN python - << 'EOF'
-    from paddleocr import PaddleOCR
-    # oder deine ocr_images-Init-Logik
-    ocr = PaddleOCR(det_model_dir=None, rec_model_dir=None, use_angle_cls=False, lang='german')
+from paddleocr import PaddleOCR
+# oder deine ocr_images-Init-Logik
+ocr = PaddleOCR(det_model_dir=None, rec_model_dir=None, use_angle_cls=False, lang='german')
 EOF
 
 
