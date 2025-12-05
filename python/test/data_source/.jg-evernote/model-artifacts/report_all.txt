@@ -1,95 +1,51 @@
 === REPORT (micro/macro) ===
-                                      precision    recall  f1-score   support
+                          precision    recall  f1-score   support
 
-                                 1&1       1.00      1.00      1.00         1
-                       Advanzia Bank       1.00      0.67      0.80         6
-                               Apple       0.95      1.00      0.97        19
-                                 BMW       0.44      0.88      0.58         8
-                                Bolt       0.00      0.00      0.00         1
-                                 CGI       0.50      0.67      0.57         3
-                D+S Rockenstein GmbH       0.83      0.83      0.83         6
-                       Deutsche Bahn       1.00      1.00      1.00         1
-                    Deutsche Telekom       0.75      1.00      0.86         9
-                    Deutsches Museum       0.80      1.00      0.89         4
-                           EasySpeak       1.00      1.00      1.00         3
-                                EnBW       1.00      1.00      1.00         4
-                            Evernote       1.00      1.00      1.00         3
-                         GEILE WEINE       1.00      1.00      1.00         1
-               GP JOULE Connect GmbH       1.00      1.00      1.00         2
-           Garagen Karl-Pfaff-Straße       0.88      1.00      0.93         7
-                                 Gas       0.42      0.83      0.56        12
-                   Gehaltsabrechnung       1.00      0.86      0.92         7
-                              Google       0.95      1.00      0.98        20
-                               HUK24       1.00      1.00      1.00         3
-                    HV Atrium 4 Home       0.56      0.91      0.69        11
-            HV Felbel Hausverwaltung       0.82      0.97      0.89        29
-      HV Hahn+Keller Immobilien GmbH       0.43      1.00      0.60         3
-HV Kresse Immobilien Verwaltung GmbH       0.75      1.00      0.86         3
-                 HV Ludwigsburger HV       0.33      1.00      0.50         3
-               HV Matthias Götz GmbH       1.00      1.00      1.00         5
-                Haus&Grund Stuttgart       0.67      0.67      0.67         3
-                                High       0.75      1.00      0.86         3
-                                 IHK       1.00      1.00      1.00         2
-                                IKEA       0.67      1.00      0.80        10
-                            Internet       0.40      0.80      0.53         5
-                                 Jun       0.67      0.77      0.71        13
-                              Leonie       0.67      0.55      0.60        11
-                              Lilian       0.75      0.75      0.75         8
-                            LinkedIn       0.50      1.00      0.67         1
-                              LogPay       1.00      1.00      1.00         2
-                           Lufthansa       0.00      0.00      0.00         0
-                     Maingau Energie       0.00      0.00      0.00         0
-                         Merz-Schule       0.95      0.95      0.95        22
-                           Microsoft       1.00      1.00      1.00         4
-                         Mietvertrag       0.50      1.00      0.67         4
-                             Netflix       0.75      1.00      0.86         3
-                            Netze BW       0.91      1.00      0.95        10
-                             Novatec       0.89      0.80      0.84        10
-                   Nutzungsdauer.com       1.00      1.00      1.00         2
-                                Otto       0.83      0.83      0.83         6
-                              PayPal       0.94      0.89      0.92        55
-                      SMP St. Gallen       0.83      1.00      0.91         5
-                                 SSB       1.00      1.00      1.00        11
-                              Schufa       1.00      1.00      1.00        14
-                      Sparda-Bank BW       0.56      1.00      0.71        10
-                             Spotify       0.50      1.00      0.67         2
-                              Steuer       0.69      0.56      0.62        66
-                               Strom       0.45      0.45      0.45        11
-                     Stuttgart Netze       1.00      1.00      1.00         2
-                   Terraconsult GmbH       1.00      0.60      0.75         5
-                              Tibber       0.94      0.88      0.91        17
-                            Vodafone       0.75      0.82      0.78        11
-                       WG-Gesucht.de       0.92      1.00      0.96        12
-                                 WGV       1.00      1.00      1.00         2
-                                WISO       0.33      1.00      0.50         1
-                Waldschule Degerloch       0.83      0.91      0.87        11
-             Whg 1 Karl-Pfaff-Straße       0.35      0.73      0.47        30
-             Whg 2 Karl-Pfaff-Straße       0.29      0.53      0.37        19
-                       Whg Degerloch       0.43      0.82      0.56        11
-                 Whg Leuschnerstraße       0.98      0.69      0.81        59
-                 Whg Neue Weinsteige       0.81      0.88      0.85        25
-                    Whg Schwabstraße       0.46      0.52      0.49        25
-                 Whg Schwieberdingen       0.60      0.86      0.71         7
-                          Whg Singen       0.00      0.00      0.00         2
-                      Whg Sonnenberg       1.00      0.89      0.94         9
-              Whgn Karl-Pfaff-Straße       0.56      0.88      0.68        59
-                  Zimmerschlüssel.de       1.00      0.67      0.80         3
-         ahg Autohandelsgesellschaft       0.30      1.00      0.46         3
-                              amazon       0.68      1.00      0.81        13
-                            bitpanda       1.00      1.00      1.00        12
-                         booking.com       0.80      1.00      0.89         4
-                          check24.de       0.94      1.00      0.97        16
-                             cloudHQ       1.00      1.00      1.00         5
-                                ebay       0.40      0.67      0.50         3
-                              eprimo       1.00      0.67      0.80         3
-                           fluege.de       0.60      1.00      0.75         3
-                   immobilienscout24       0.64      1.00      0.78         7
-                                 nan       0.71      0.83      0.77         6
-                               netgo       0.47      0.88      0.61         8
-                           sparhandy       0.00      0.00      0.00         1
-                        team energie       0.14      1.00      0.25         1
+           Advanzia Bank       1.00      1.00      1.00         4
+                   Apple       0.60      1.00      0.75         3
+                     BMW       1.00      0.33      0.50         3
+                     CGI       1.00      0.60      0.75         5
+        Deutsche Telekom       1.00      1.00      1.00         5
+                  Google       0.50      1.00      0.67         4
+        HV Atrium 4 Home       0.00      0.00      0.00         0
+HV Felbel Hausverwaltung       0.93      1.00      0.97        14
+                    IKEA       0.67      1.00      0.80         2
+                Internet       0.50      1.00      0.67         3
+                     Jun       1.00      0.67      0.80         3
+                  Leonie       0.56      0.83      0.67         6
+                  Lilian       0.67      0.40      0.50         5
+             Merz-Schule       0.88      0.93      0.90        15
+                 Novatec       0.50      0.67      0.57         3
+                  PayPal       0.94      0.89      0.92        19
+          SMP St. Gallen       1.00      1.00      1.00         2
+                     SSB       0.78      1.00      0.88         7
+                  Schufa       1.00      1.00      1.00         1
+          Sparda-Bank BW       0.86      1.00      0.92         6
+                  Steuer       0.44      0.95      0.60        20
+                   Strom       0.57      1.00      0.73         4
+                  Tibber       1.00      0.83      0.91         6
+                Vodafone       1.00      0.33      0.50         3
+           WG-Gesucht.de       1.00      1.00      1.00         5
+    Waldschule Degerloch       1.00      1.00      1.00         4
+ Whg 1 Karl-Pfaff-Straße       0.15      0.80      0.25         5
+ Whg 2 Karl-Pfaff-Straße       0.36      0.67      0.47         6
+           Whg Degerloch       0.00      0.00      0.00         2
+     Whg Leuschnerstraße       0.38      0.30      0.33        10
+     Whg Neue Weinsteige       0.67      0.86      0.75        14
+        Whg Schwabstraße       0.50      0.22      0.31         9
+     Whg Schwieberdingen       0.50      0.50      0.50         2
+          Whg Sonnenberg       1.00      0.67      0.80         3
+  Whgn Karl-Pfaff-Straße       0.44      0.58      0.50        12
+                  amazon       1.00      1.00      1.00         3
+                bitpanda       0.00      0.00      0.00         0
+              check24.de       0.75      0.75      0.75         4
+                 cloudHQ       1.00      0.67      0.80         3
+               fluege.de       0.50      1.00      0.67         2
+       immobilienscout24       1.00      1.00      1.00         3
+                     nan       0.25      0.20      0.22         5
+                   netgo       0.88      0.88      0.88         8
 
-                           micro avg       0.69      0.83      0.75       862
-                           macro avg       0.72      0.84      0.75       862
-                        weighted avg       0.75      0.83      0.77       862
-                         samples avg       0.74      0.86      0.77       862
+               micro avg       0.61      0.79      0.69       243
+               macro avg       0.69      0.73      0.68       243
+            weighted avg       0.71      0.79      0.72       243
+             samples avg       0.64      0.79      0.68       243

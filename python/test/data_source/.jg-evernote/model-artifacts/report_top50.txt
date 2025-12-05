@@ -1,61 +1,32 @@
 === REPORT (micro/macro) ===
-                                      precision    recall  f1-score   support
+                          precision    recall  f1-score   support
 
-                       Advanzia Bank       1.00      1.00      1.00         1
-                               Apple       1.00      1.00      1.00         6
-                                 BMW       1.00      0.86      0.92         7
-                                 CGI       1.00      0.67      0.80         3
-                    Deutsche Telekom       1.00      1.00      1.00         2
-                                EnBW       1.00      1.00      1.00         1
-                   Gehaltsabrechnung       1.00      1.00      1.00         1
-                              Google       0.86      1.00      0.92        12
-                    HV Atrium 4 Home       0.50      0.89      0.64         9
-            HV Felbel Hausverwaltung       0.92      0.96      0.94        25
-      HV Hahn+Keller Immobilien GmbH       1.00      0.67      0.80         3
-HV Kresse Immobilien Verwaltung GmbH       1.00      1.00      1.00         4
-                 HV Ludwigsburger HV       0.60      1.00      0.75         3
-               HV Matthias Götz GmbH       0.80      1.00      0.89         4
-                Haus&Grund Stuttgart       0.67      1.00      0.80         2
-                                IKEA       0.50      1.00      0.67         3
-                            Internet       0.40      1.00      0.57         2
-                                 Jun       0.80      0.67      0.73         6
-                              Leonie       0.64      0.90      0.75        10
-                              Lilian       0.25      1.00      0.40         3
-                         Merz-Schule       1.00      1.00      1.00        16
-                            Netze BW       1.00      1.00      1.00         2
-                             Novatec       1.00      0.83      0.91         6
-                                Otto       0.12      0.50      0.20         2
-                              PayPal       0.86      0.96      0.91        25
-                      SMP St. Gallen       0.75      0.75      0.75         4
-                                 SSB       0.71      1.00      0.83         5
-                              Schufa       1.00      1.00      1.00         6
-                      Sparda-Bank BW       1.00      0.83      0.91         6
-                              Steuer       0.77      0.77      0.77        31
-                               Strom       0.86      0.75      0.80         8
-                              Tibber       1.00      0.88      0.93         8
-                            Vodafone       1.00      0.80      0.89         5
-                       WG-Gesucht.de       1.00      1.00      1.00         7
-                                 WGV       0.67      1.00      0.80         2
-                Waldschule Degerloch       1.00      1.00      1.00         5
-             Whg 1 Karl-Pfaff-Straße       0.09      0.50      0.15         4
-             Whg 2 Karl-Pfaff-Straße       0.32      0.70      0.44        10
-                       Whg Degerloch       0.75      0.50      0.60         6
-                 Whg Leuschnerstraße       1.00      0.57      0.73        28
-                 Whg Neue Weinsteige       0.72      0.95      0.82        19
-                    Whg Schwabstraße       0.78      0.54      0.64        13
-                 Whg Schwieberdingen       1.00      0.80      0.89         5
-                      Whg Sonnenberg       0.88      1.00      0.93         7
-              Whgn Karl-Pfaff-Straße       0.37      0.88      0.52        16
-         ahg Autohandelsgesellschaft       0.80      0.80      0.80         5
-                              amazon       0.71      1.00      0.83         5
-                         booking.com       1.00      1.00      1.00         1
-                          check24.de       1.00      1.00      1.00         8
-                             cloudHQ       1.00      1.00      1.00         5
-                           fluege.de       0.00      0.00      0.00         0
-                                 nan       0.31      0.71      0.43         7
-                               netgo       0.92      1.00      0.96        11
+           Advanzia Bank       1.00      1.00      1.00         2
+                   Apple       0.75      1.00      0.86         3
+                     CGI       0.50      1.00      0.67         1
+                  Google       0.83      1.00      0.91         5
+        HV Atrium 4 Home       0.40      1.00      0.57         2
+HV Felbel Hausverwaltung       1.00      1.00      1.00         5
+                     Jun       1.00      0.25      0.40         4
+                  Leonie       0.67      1.00      0.80         2
+                  Lilian       0.33      0.33      0.33         3
+             Merz-Schule       1.00      1.00      1.00         3
+                 Novatec       1.00      1.00      1.00         1
+                  PayPal       0.70      1.00      0.82         7
+                     SSB       1.00      1.00      1.00         2
+          Sparda-Bank BW       1.00      0.57      0.73         7
+                  Steuer       0.50      0.44      0.47         9
+ Whg 1 Karl-Pfaff-Straße       0.13      1.00      0.24         2
+     Whg Leuschnerstraße       0.83      1.00      0.91         5
+     Whg Neue Weinsteige       0.40      1.00      0.57         4
+        Whg Schwabstraße       1.00      0.25      0.40         4
+  Whgn Karl-Pfaff-Straße       0.25      0.25      0.25         4
+                 cloudHQ       0.75      1.00      0.86         3
+               fluege.de       0.50      1.00      0.67         1
+                     nan       0.54      1.00      0.70         7
+                   netgo       1.00      0.88      0.93         8
 
-                           micro avg       0.70      0.86      0.77       395
-                           macro avg       0.78      0.86      0.79       395
-                        weighted avg       0.81      0.86      0.81       395
-                         samples avg       0.76      0.88      0.79       395
+               micro avg       0.61      0.79      0.69        94
+               macro avg       0.71      0.83      0.71        94
+            weighted avg       0.73      0.79      0.71        94
+             samples avg       0.64      0.78      0.68        94
