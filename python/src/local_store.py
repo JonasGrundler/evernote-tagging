@@ -43,7 +43,7 @@ PATHS[MAPPINGS] = os.path.join(PATHS[BASE], "mappings")
 
 PATHS[IMAGES_TMP] = os.path.join(PATHS[BASE], "images-tmp")
 
-for key, path in PATHS.items():
-    Path(path).mkdir(parents=True, exist_ok=True)
+#for key, path in PATHS.items():
+#    Path(path).mkdir(parents=True, exist_ok=True)
 
-print(f"Ensured paths for local store '{PATHS[BASE]}'.")
+print(f"Path for local store '{PATHS[BASE]}'.")

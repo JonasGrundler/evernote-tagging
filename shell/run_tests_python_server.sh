@@ -6,8 +6,8 @@ SHELL_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR=$(realpath "$SHELL_SRC/../python/test")
 PYTHON_SRC=$(realpath "$SHELL_SRC/../python/src")
 VENV_PATH=~/python-venv/.test-venv
-DATA="$TEST_DIR/data_test"
-DATA_SRC="$TEST_DIR/data_source"
+DATA=$(realpath "$TEST_DIR/data_test")
+DATA_SRC=$(realpath "$TEST_DIR/data_source")
 
 ### --------------------------------------------------------------------
 ### 0) Aktionen auswerten
@@ -49,11 +49,11 @@ else
   done
 fi
 
-echo "Bereite Tests vor mit folgenden Parametern:"
-echo "  TEST             = $TEST_DIR"
+#echo "Bereite Tests vor mit folgenden Parametern:"
+#echo "  TEST             = $TEST_DIR"
 
-source "$SHELL_SRC/test_functions/f_prepare_tests.sh"
-prepare_tests_env "$TEST_DIR"
+#source "$SHELL_SRC/test_functions/f_prepare_tests.sh"
+#prepare_tests_env "$TEST_DIR"
 
 echo "Starte Server mit folgenden Parametern:"
 echo "  VENV_PATH        = $VENV_PATH"
@@ -66,7 +66,7 @@ echo "  DO_INSTALL       = $DO_INSTALL"
 source "$SHELL_SRC/functions_python/f_server.sh"
 prepare_server "$VENV_PATH" "$PYTHON_SRC" "$SHELL_SRC" "$DATA" "$DATA_SRC" $DO_INSTALL
 
-start_server_managed "$DO_INSTALL"
+start_server_managed "$PYTHON_SRC" "$DO_INSTALL"
 
 
 echo "Starte Tests mit folgenden Parametern:"
@@ -76,4 +76,4 @@ echo "  DO_IMAGE_TO_TEXT = $DO_IMAGE_TO_TEXT"
 echo "  DO_TROCR         = $DO_TROCR"
 
 source "$SHELL_SRC/test_functions_python/f_run_tests.sh"
-run_tests
+run_tests $DO_TRAIN $DO_INFER $DO_IMAGE_TO_TEXT $DO_TROCR "$TEST_DIR" "$SHELL_SRC"

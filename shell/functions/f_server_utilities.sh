@@ -11,9 +11,13 @@ prepare_data_dir() {
     return 1
   fi
 
+  if [[ -d "$DST" ]]; then
+    rm -rf "$DST"
+  fi
   mkdir -p "$DST"
 
   # Wir laufen im SRC-Verzeichnis, damit wir relative Pfade haben
+  echo "prepare_data_dir: Kopiere von $SRC nach $DST"
   ( 
     cd "$SRC" || exit 1
 

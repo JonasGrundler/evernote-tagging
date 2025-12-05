@@ -34,14 +34,12 @@ prepare() {
 
   source "$SHELL_SRC/test_functions_python/f_prepare_tests.sh"
   prepare_tests_env
-
-  source "$SHELL_SRC/test_functions/f_test_utilities.sh"
 }
 
 run_tests() {
 
-  if [[ $# < 4 ]]; then
-    echo "Aufruf: run_tests DO_TRAIN DO_INFER DO_IMAGE_TO_TEXT DO_TROCR" >&2
+  if [[ $# < 6 ]]; then
+    echo "Aufruf: run_tests DO_TRAIN DO_INFER DO_IMAGE_TO_TEXT DO_TROCR TEST_DIR SHELL_SRC" >&2
     return 1
   fi
 
@@ -49,37 +47,43 @@ run_tests() {
   local DO_INFER=$2
   local DO_IMAGE_TO_TEXT=$3
   local DO_TROCR=$4
+  local TEST_DIR=$5
+  local SHELL_SRC=$6
+
+  local DATA_SOURCE="$TEST_DIR/data_source"
+  local DATA="$TEST_DIR/data_test"
 
   if $DO_TRAIN; then
-    do_training
+    do_training "$DATA_SOURCE" "$DATA" "$SHELL_SRC"
   fi
 
   if $DO_INFER; then
-    do_infer
+    do_infer "$TEST_DIR" "$DATA"
   fi
 
   if $DO_IMAGE_TO_TEXT; then
-    do_image_to_text
+    do_image_to_text "$DATA_SOURCE" "$DATA" "$SHELL_SRC"
   fi
 
   if $DO_TROCR; then
-    do_trocr
+    do_trocr "$TEST_DIR" "$DATA"
   fi
 }
 
 do_training () {
 
   if [[ $# < 2 ]]; then
-    echo "Aufruf: do_training DATA_SOURCE DATA" >&2
+    echo "Aufruf: do_training DATA_SOURCE DATA SHELL_SRC" >&2
     return 1
   fi
 
   local DATA_SOURCE=$1
   local DATA=$2
+  local SHELL_SRC=$3
 
-  echo "Führe Trainings-Tests durch..."
+  echo "Führe Trainings-Tests durch... DATA_SOURCE=$DATA_SOURCE, DATA=$DATA"
 
-  EPOCH=$(date +%s)
+  local EPOCH=$(date +%s)
   sleep 1
   
   # Testaufrufe zum Trainieren der Modelle
@@ -89,6 +93,7 @@ do_training () {
     
   echo ""
  
+  source "$SHELL_SRC/test_functions/f_test_utilities.sh"
   compare_folders "$DATA_SOURCE/.jg-evernote/model-artifacts" "$DATA/.jg-evernote/model-artifacts" $EPOCH
 }
 
@@ -100,7 +105,7 @@ do_infer () {
   fi
 
   local TEST_DIR=$1
-  local BASE_NOTES_DIR=$2
+  local DATA=$2
 
   echo "Führe Inferenz-Tests durch..."
   local INFER_TABLE="$TEST_DIR/test_support/infer_table.txt"
@@ -155,15 +160,16 @@ do_infer () {
 do_image_to_text () {
 
   if [[ $# < 2 ]]; then
-    echo "Aufruf: do_training DATA_SOURCE DATA" >&2
+    echo "Aufruf: do_training DATA_SOURCE DATA SHELL_SRC" >&2
     return 1
   fi
 
   local DATA_SOURCE=$1
   local DATA=$2
+  local SHELL_SRC=$3
 
 
-  EPOCH=$(date +%s)
+  local EPOCH=$(date +%s)
 
   echo "Führe Image-to-Text-Tests durch..."
   curl -X POST "http://localhost:8000/ocr_images" \
@@ -171,6 +177,7 @@ do_image_to_text () {
   -d '{"images": 4}'
   echo ""
 
+  source "$SHELL_SRC/test_functions/f_test_utilities.sh"
   compare_folders "$DATA_SOURCE/.jg-evernote/images-tmp" "$DATA/.jg-evernote/images-tmp" $EPOCH txt
 }
 

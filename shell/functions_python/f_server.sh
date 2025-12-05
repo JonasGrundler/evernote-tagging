@@ -26,14 +26,11 @@ prepare_server() {
   echo "DATA=${DATA}"
 
   source "$SHELL_SRC/functions/f_server_utilities.sh"
-  echo "DATA_SRC=${DATA_SRC}"
-  echo "DATA=${DATA}"
   prepare_data_dir "$DATA_SRC" "$DATA"
 
   source "$SHELL_SRC/functions_python/f_prepare.sh"
   prepare_python_env "$VENV_PATH" "$PYTHON_SRC" "$DO_INSTALL"
 
-  export DATA
 }
 
 cleanup_server() {
@@ -66,6 +63,10 @@ start_server_managed() {
   echo "Starte Uvicorn im Hintergrund..."
   if [ -f "$UVICORN_LOG" ]; then rm -f "$UVICORN_LOG"; fi
 
+
+  echo "export DATA=${DATA}"
+  export DATA=$DATA
+  
   OLDPWD="$(pwd)"
   cd "$PYTHON_SRC"
   touch "$UVICORN_LOG"
@@ -106,6 +107,8 @@ start_server_foreground() {
   echo "[run_server] Foreground start in $PYTHON_SRC ..."
 
   (
+    echo "export DATA=${DATA}"
+    export DATA=$DATA  
     cd "$PYTHON_SRC"
     echo "Starte Uvicorn im Vordergrund (Strg-C zum Beenden)..."
     exec python3 -m uvicorn server:app --reload --host 0.0.0.0 --port 8000

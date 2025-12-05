@@ -16,8 +16,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.multioutput import ClassifierChain
 import joblib
-import model_info
-import local_store
+import model_info as model_info
+import local_store as local_store
 
 # ==========================
 # 0) CONFIG
