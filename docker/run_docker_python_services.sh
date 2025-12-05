@@ -1,1 +1,1 @@
-docker run -v ~:/data evernote-services
+docker run -v ~:/data python-services

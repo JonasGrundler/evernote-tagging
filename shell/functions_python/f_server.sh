@@ -1,32 +1,40 @@
-# benötigt VENV_PATH von aufrufendem Script (für f_prepare_python.sh)
-# benötigt SRC von aufrufendem Script (für cd)
-# benötigt DATA von aufrufendem Script (für uvicorn env var)
-if [[ -z "$VENV_PATH" ]]; then
-  echo "VENV_PATH ist nicht gesetzt!"
-  return 1
-fi
-if [[ -z "$SRC" ]]; then
-  echo "SRC ist nicht gesetzt!"
-  return 1
-fi
-if [[ -z "$DATA" ]]; then
-  echo "DATA ist nicht gesetzt!"
-  return 1
-fi
+prepare_server() {
+  echo "1=${1}, 2=${2}, 3=${3}, 4=${4}, 5=${5}"
+  local VENV_PATH="$1"
+  local PYTHON_SRC="$2"
+  local SHELL_SRC="$3"
+  local DATA="$4"
+  local DATA_SRC="$5"
+  local DO_INSTALL="${6:-false}"
 
-set -e
+  if [[ $# < 5 ]]; then
+    echo "Aufruf: prepare_server VENV_PATH PYTHON_SRC SHELL_SRC DATA DATA_SRC [DO_INSTALL:True/False]" >&2
+    return 1
+  fi
 
-### --------------------------------------------------------------------
-### Basis-Pfade
-### --------------------------------------------------------------------
+  set -e
 
-UVICORN_LOG="$SRC/uvicorn.log"
+  ### --------------------------------------------------------------------
+  ### Basis-Pfade
+  ### --------------------------------------------------------------------
 
-UVICORN_PID=""
-TAIL_PID=""
-SERVER_TRAP_INSTALLED="${SERVER_TRAP_INSTALLED:-}"
+  UVICORN_PID=""
+  TAIL_PID=""
+  SERVER_TRAP_INSTALLED="${SERVER_TRAP_INSTALLED:-}"
+  
+  echo "DATA_SRC=${DATA_SRC}"
+  echo "DATA=${DATA}"
 
-source "$SRC/f_prepare_python.sh"
+  source "$SHELL_SRC/functions/f_server_utilities.sh"
+  echo "DATA_SRC=${DATA_SRC}"
+  echo "DATA=${DATA}"
+  prepare_data_dir "$DATA_SRC" "$DATA"
+
+  source "$SHELL_SRC/functions_python/f_prepare.sh"
+  prepare_python_env "$VENV_PATH" "$PYTHON_SRC" "$DO_INSTALL"
+
+  export DATA
+}
 
 cleanup_server() {
   echo "Cleanup Server..."
@@ -50,17 +58,16 @@ install_trap_once() {
 ### --------------------------------------------------------------------
 start_server_managed() {
 
-  echo "[run_server] Managed start (background, trap, wait)..."
+  local PYTHON_SRC="$1"
+  local UVICORN_LOG="$PYTHON_SRC/uvicorn.log"
 
-  prepare_python_call "$1"
+  echo "[run_server] Managed start (background, trap, wait)..."
 
   echo "Starte Uvicorn im Hintergrund..."
   if [ -f "$UVICORN_LOG" ]; then rm -f "$UVICORN_LOG"; fi
 
-  export DATA
-
   OLDPWD="$(pwd)"
-  cd "$SRC"
+  cd "$PYTHON_SRC"
   touch "$UVICORN_LOG"
   python3 -m uvicorn server:app --reload --host 0.0.0.0 --port 8000 > "$UVICORN_LOG" 2>&1 &
   UVICORN_PID=$!
@@ -94,18 +101,13 @@ start_server_managed() {
 ### --------------------------------------------------------------------
 start_server_foreground() {
 
-  echo "[run_server] Foreground start..."
+  local PYTHON_SRC="$1"
 
-  prepare_python_call "$1"
+  echo "[run_server] Foreground start in $PYTHON_SRC ..."
 
   (
-    export DATA
-    cd "$SRC"
+    cd "$PYTHON_SRC"
     echo "Starte Uvicorn im Vordergrund (Strg-C zum Beenden)..."
     exec python3 -m uvicorn server:app --reload --host 0.0.0.0 --port 8000
   )
-}
-
-prepare_python_call() {
-  prepare_python_env "$1"
 }

@@ -2,10 +2,12 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEST="$SCRIPT_DIR"
-SRC="$SCRIPT_DIR/../src"
+SHELL_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEST_DIR=$(realpath "$SHELL_SRC/../python/test")
+PYTHON_SRC=$(realpath "$SHELL_SRC/../python/src")
 VENV_PATH=~/python-venv/.test-venv
+DATA="$TEST_DIR/data_test"
+DATA_SRC="$TEST_DIR/data_source"
 
 ### --------------------------------------------------------------------
 ### 0) Aktionen auswerten
@@ -48,18 +50,22 @@ else
 fi
 
 echo "Bereite Tests vor mit folgenden Parametern:"
-echo "  TEST             = $TEST"
+echo "  TEST             = $TEST_DIR"
 
-source "$TEST/f_prepare_tests.sh"
-prepare_tests_env
+source "$SHELL_SRC/test_functions/f_prepare_tests.sh"
+prepare_tests_env "$TEST_DIR"
 
 echo "Starte Server mit folgenden Parametern:"
 echo "  VENV_PATH        = $VENV_PATH"
-echo "  SRC              = $SRC"
+echo "  PYTHON_SRC       = $PYTHON_SRC"
+echo "  SHELL_SRC        = $SHELL_SRC"
 echo "  DATA             = $DATA"
+echo "  DATA_SRC         = $DATA_SCR"
 echo "  DO_INSTALL       = $DO_INSTALL"
 
-source "$SRC/f_server.sh"
+source "$SHELL_SRC/functions_python/f_server.sh"
+prepare_server "$VENV_PATH" "$PYTHON_SRC" "$SHELL_SRC" "$DATA" "$DATA_SRC" $DO_INSTALL
+
 start_server_managed "$DO_INSTALL"
 
 
@@ -69,5 +75,5 @@ echo "  DO_INFER         = $DO_INFER"
 echo "  DO_IMAGE_TO_TEXT = $DO_IMAGE_TO_TEXT"
 echo "  DO_TROCR         = $DO_TROCR"
 
-source "$TEST/f_run_tests.sh"
+source "$SHELL_SRC/test_functions_python/f_run_tests.sh"
 run_tests

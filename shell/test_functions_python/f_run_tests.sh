@@ -1,27 +1,55 @@
-if [[ -z "$TEST" ]]; then
-  echo "TEST ist nicht gesetzt!"
-  return 1
-fi
-if [[ -z "$DATA" ]]; then
-  echo "DATA ist nicht gesetzt!"
-  return 1
-fi
-if [[ -z "$DATA_SOURCE" ]]; then
-  echo "DATA_SOURCE ist nicht gesetzt!"
-  return 1
-fi
+prepare() {
 
-#DO_TRAIN=false
-#DO_INFER=false
-#DO_IMAGE_TO_TEXT=false
-#DO_TROCR=false
+    if [[ $# < 4 ]]; then
+    echo "Aufruf: prepare TEST_DIR DATA DATA_SOURCE SHELL_SRC" >&2
+    return 1
+  fi
 
-source "$TEST/f_prepare_tests.sh"
-prepare_tests_env
+  local TEST_DIR=$1
+  local DATA=$2
+  local DATA_SOURCE=$3
+  local SHELL_SRC=$4
 
-source "$TEST/f_test_utilities.sh"
+  if [[ -z "$TEST_DIR" ]]; then
+    echo "TEST_DIR ist nicht gesetzt!"
+    return 1
+  fi
+  if [[ -z "$DATA" ]]; then
+    echo "DATA ist nicht gesetzt!"
+    return 1
+  fi
+  if [[ -z "$DATA_SOURCE" ]]; then
+    echo "DATA_SOURCE ist nicht gesetzt!"
+    return 1
+  fi
+  if [[ -z "$SHELL_SRC" ]]; then
+    echo "SHELL_SRC ist nicht gesetzt!"
+    return 1
+  fi
+
+  #DO_TRAIN=false
+  #DO_INFER=false
+  #DO_IMAGE_TO_TEXT=false
+  #DO_TROCR=false
+
+  source "$SHELL_SRC/test_functions_python/f_prepare_tests.sh"
+  prepare_tests_env
+
+  source "$SHELL_SRC/test_functions/f_test_utilities.sh"
+}
 
 run_tests() {
+
+  if [[ $# < 4 ]]; then
+    echo "Aufruf: run_tests DO_TRAIN DO_INFER DO_IMAGE_TO_TEXT DO_TROCR" >&2
+    return 1
+  fi
+
+  local DO_TRAIN=$1
+  local DO_INFER=$2
+  local DO_IMAGE_TO_TEXT=$3
+  local DO_TROCR=$4
+
   if $DO_TRAIN; then
     do_training
   fi
@@ -40,6 +68,15 @@ run_tests() {
 }
 
 do_training () {
+
+  if [[ $# < 2 ]]; then
+    echo "Aufruf: do_training DATA_SOURCE DATA" >&2
+    return 1
+  fi
+
+  local DATA_SOURCE=$1
+  local DATA=$2
+
   echo "Führe Trainings-Tests durch..."
 
   EPOCH=$(date +%s)
@@ -56,9 +93,18 @@ do_training () {
 }
 
 do_infer () {
+
+  if [[ $# < 2 ]]; then
+    echo "Aufruf: do_infer DATA_SOURCE DATA" >&2
+    return 1
+  fi
+
+  local TEST_DIR=$1
+  local BASE_NOTES_DIR=$2
+
   echo "Führe Inferenz-Tests durch..."
-  INFER_TABLE="$TEST/test_support/infer_table.txt"
-  BASE_NOTES_DIR="$DATA/.jg-evernote/internet-single/notes"
+  local INFER_TABLE="$TEST_DIR/test_support/infer_table.txt"
+  local BASE_NOTES_DIR="$DATA/.jg-evernote/internet-single/notes"
 
   all_ok=true
 
@@ -108,6 +154,15 @@ do_infer () {
 
 do_image_to_text () {
 
+  if [[ $# < 2 ]]; then
+    echo "Aufruf: do_training DATA_SOURCE DATA" >&2
+    return 1
+  fi
+
+  local DATA_SOURCE=$1
+  local DATA=$2
+
+
   EPOCH=$(date +%s)
 
   echo "Führe Image-to-Text-Tests durch..."
@@ -120,10 +175,19 @@ do_image_to_text () {
 }
 
 do_trocr() {
+
+  if [[ $# < 2 ]]; then
+    echo "Aufruf: do_trocr TEST_DIR DATA" >&2
+    return 1
+  fi
+
+  local TEST_DIR=$1
+  local DATA=$2
+
   echo "Führe TrOCR-Tests durch..."
 
-  TROCR_TABLE="$TEST/test_support/trocr_table.txt"
-  BASE_PNG_DIR="$DATA/.jg-evernote/images-tmp"
+  local TROCR_TABLE="$TEST_DIR/test_support/trocr_table.txt"
+  local BASE_PNG_DIR="$DATA/.jg-evernote/images-tmp"
   all_ok=true
 
   # Tabelle zeilenweise lesen
