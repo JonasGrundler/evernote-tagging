@@ -31,13 +31,13 @@ import java.util.*;
 
 public class EvernoteTagging {
 
-    private InternetHelper internetHelper;
+    private static EvernoteTagging et = null;
 
+    private InternetHelper internetHelper;
     private TrainingClient tc;
 
     private boolean reTag = false;
 
-    private static final int INTERVAL = 60 * 60 * 1000; // 12x/Tag
     private static final int COUNT = 30; // 180/Tag bei 12 Durchläufen, pro Note werden 2 API Calls gemacht
 
     private EvernoteTagging(boolean reTag) throws Exception {
@@ -58,11 +58,22 @@ public class EvernoteTagging {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            boolean reTag = args != null && args.length == 1 && args[0].equals("retag=true");
-            EvernoteTagging et = new EvernoteTagging(reTag);
+    public static void init(boolean reTag) throws Exception {
+        et = new EvernoteTagging(reTag);
+    }
 
+    public static void main(String[] args) {
+        boolean reTag = args != null && args.length == 1 && args[0].equals("retag=true");
+        try {
+            init(reTag);
+            run();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+    }
+
+    public static void run() {
+        try {
             // 1x pro Stunde
             while (true) {
                 int taggingCount = 0;
