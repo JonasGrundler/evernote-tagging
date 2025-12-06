@@ -61,6 +61,7 @@ start_server_managed() {
   echo "[run_server] Managed start (background, trap, wait)..."
 
   echo "Starte Uvicorn im Hintergrund..."
+  echo "UVICORN_LOG $UVICORN_LOG"
   if [ -f "$UVICORN_LOG" ]; then rm -f "$UVICORN_LOG"; fi
 
 

@@ -34,6 +34,7 @@ class ServicesClientTest {
         assertNotNull(tags, "Tags-Liste sollte nie null sein");
 
         List<String> expected = new ArrayList<>();
+        expected.add("Google");
         expected.add("PayPal");
         assertIterableEquals(expected, tags);
         // Optional:

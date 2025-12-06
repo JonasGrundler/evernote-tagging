@@ -11,11 +11,6 @@ prepare_data_dir() {
     return 1
   fi
 
-  if [[ -d "$DST" ]]; then
-    rm -rf "$DST"
-  fi
-  mkdir -p "$DST"
-
   # Wir laufen im SRC-Verzeichnis, damit wir relative Pfade haben
   echo "prepare_data_dir: Kopiere von $SRC nach $DST"
   ( 
@@ -30,8 +25,6 @@ prepare_data_dir() {
         mkdir -p "$(dirname "$target")"
         cp -p "$rel" "$target"
         echo "kopiert: $rel"
-      else
-        echo "übersprungen (existiert schon): $rel"
       fi
     done
   )

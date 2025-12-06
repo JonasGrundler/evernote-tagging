@@ -49,11 +49,11 @@ else
   done
 fi
 
-#echo "Bereite Tests vor mit folgenden Parametern:"
-#echo "  TEST             = $TEST_DIR"
+echo "Bereite Tests vor mit folgenden Parametern:"
+echo "  DATA             = $DATA"
 
-#source "$SHELL_SRC/test_functions/f_prepare_tests.sh"
-#prepare_tests_env "$TEST_DIR"
+source "$SHELL_SRC/test_functions/f_prepare_tests.sh"
+prepare_tests_env "$DATA"
 
 echo "Starte Server mit folgenden Parametern:"
 echo "  VENV_PATH        = $VENV_PATH"

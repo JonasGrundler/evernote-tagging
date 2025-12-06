@@ -3,8 +3,6 @@ package com.example.evernote.internet;
 public class EvernoteTaggingTest {
 
     /**
-     *-1.0 data-Verzeichnis nicht anlegen sondern einfach kopieren - siehe f_server.sh
-     *-0.5 shell-methoden mit Übergabeparameter ausstatten
      *  pyhton start server: testen
      *  java: einbauen (.... start server kommt ja erst noch)
      * 0.0 Notebooks/Notes spezifizieren

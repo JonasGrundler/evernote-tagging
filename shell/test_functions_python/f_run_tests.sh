@@ -94,7 +94,7 @@ do_training () {
   echo ""
  
   source "$SHELL_SRC/test_functions/f_test_utilities.sh"
-  compare_folders "$DATA_SOURCE/.jg-evernote/model-artifacts" "$DATA/.jg-evernote/model-artifacts" $EPOCH
+  compare_folders "$DATA_SOURCE/.jg-evernote/model-artifacts" "$DATA/.jg-evernote/model-artifacts" $EPOCH txt
 }
 
 do_infer () {
@@ -111,7 +111,7 @@ do_infer () {
   local INFER_TABLE="$TEST_DIR/test_support/infer_table.txt"
   local BASE_NOTES_DIR="$DATA/.jg-evernote/internet-single/notes"
 
-  all_ok=true
+  local all_ok=true
 
   # Tabelle zeilenweise lesen
   while IFS='|' read -r id scenario expected_json; do
@@ -195,14 +195,14 @@ do_trocr() {
 
   local TROCR_TABLE="$TEST_DIR/test_support/trocr_table.txt"
   local BASE_PNG_DIR="$DATA/.jg-evernote/images-tmp"
-  all_ok=true
+  local all_ok=true
 
   # Tabelle zeilenweise lesen
   while IFS='|' read -r id expected_json; do
 
-    expected_json=${expected_json%$'\r'}
+    local expected_json=${expected_json%$'\r'}
 
-    png_file=""$BASE_PNG_DIR/$id.png""
+    local png_file=""$BASE_PNG_DIR/$id.png""
 
     if [ ! -f "$png_file" ]; then
       echo "⚠ PNG fehlt: $png_file"
@@ -213,7 +213,7 @@ do_trocr() {
     echo "Teste id=$id"
 
     # JSON-Payload bauen (ohne Anführungs-Quoting-Hölle)
-    response=$(curl -X POST "http://localhost:8000/ocr" \
+    local response=$(curl -X POST "http://localhost:8000/ocr" \
     -H "accept: application/json" \
     -F "file=@${png_file};filename=image.png;type=application/octet-stream")
 
