@@ -3,7 +3,6 @@ package com.example.evernote.internet;
 public class EvernoteTaggingTest {
 
     /**
-     *  pyhton start server: testen
      *  java: einbauen (.... start server kommt ja erst noch)
      * 0.0 Notebooks/Notes spezifizieren
      *     a) Notebook: ET-Configuration, Notes EMailToTags und KeywordsToTags

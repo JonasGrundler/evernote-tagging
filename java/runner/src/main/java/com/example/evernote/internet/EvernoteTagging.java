@@ -35,14 +35,10 @@ public class EvernoteTagging {
 
     private TrainingClient tc;
 
-    private String targetNotebookGuid = null;
-
     private boolean reTag = false;
 
     private static final int INTERVAL = 60 * 60 * 1000; // 12x/Tag
     private static final int COUNT = 30; // 180/Tag bei 12 Durchläufen, pro Note werden 2 API Calls gemacht
-    private static final String SOURCE_NOTEBOOK_NAME = "00 Eingang";
-    private static final String TARGET_NOTEBOOK_NAME = "01 Tagged";
 
     private EvernoteTagging(boolean reTag) throws Exception {
         this.reTag = reTag;
@@ -50,13 +46,16 @@ public class EvernoteTagging {
 
         tc = new TrainingClient();
 
-        for (Map.Entry<String, String> e : RemoteNotebookStore.getSingleton().getNameToGuid().entrySet()) {
-            if (TARGET_NOTEBOOK_NAME.equals(e.getKey())) {
-                targetNotebookGuid = e.getValue();
-                break;
+        System.out.println("targetNotebookName:" + RemoteNote.EN_USER_CONF_NB);
+        System.out.println("Notebook Mappings:");
+        Set<Map.Entry<String, String>> set = FromToNotebooks.getSingleton().getNamePairs().entrySet();
+        if (!set.isEmpty()) {
+            for (Map.Entry<String, String> e : FromToNotebooks.getSingleton().getNamePairs().entrySet()) {
+                System.out.println("from:" + e.getKey() + " to:" + e.getValue());
             }
+        } else {
+            System.out.println("No mappings found.");
         }
-        System.out.println("targetNotebookGuid:" + targetNotebookGuid);
     }
 
     public static void main(String[] args) {
@@ -152,18 +151,20 @@ public class EvernoteTagging {
 
         // read all possible files which have been moved out of the tagging folder... max COUNT
         Set<String> notMovedNotes = new HashSet<>();
-        try {
-            NoteFilter f = new NoteFilter();
-            f.setNotebookGuid(RemoteNotebookStore.getSingleton().getGuid(TARGET_NOTEBOOK_NAME));
-            NotesMetadataResultSpec spec = new NotesMetadataResultSpec();
-            NotesMetadataList meta = RemoteNoteStore.getSingleton().getNoteStore().findNotesMetadata(f, 0, 50, spec);
+        for (String targetNotebookName : FromToNotebooks.getSingleton().getNamePairs().values()) {
+            try {
+                NoteFilter f = new NoteFilter();
+                f.setNotebookGuid(RemoteNotebookStore.getSingleton().getGuid(targetNotebookName));
+                NotesMetadataResultSpec spec = new NotesMetadataResultSpec();
+                NotesMetadataList meta = RemoteNoteStore.getSingleton().getNoteStore().findNotesMetadata(f, 0, 50, spec);
 
-            for (NoteMetadata nm : meta.getNotes()) {
-                notMovedNotes.add(nm.getGuid());
+                for (NoteMetadata nm : meta.getNotes()) {
+                    notMovedNotes.add(nm.getGuid());
+                }
+                count++;
+            } catch (Exception e) {
+                e.printStackTrace(System.out);
             }
-            count++;
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
         }
 
         Map<String, String> noteguids = new HashMap<>();
@@ -307,150 +308,153 @@ public class EvernoteTagging {
 
     public int tagNotes() throws Exception {
         int count = 0;
-        try {
-            // reload in case...
-            RemoteTagStore.getSingleton().init();
-            EMailToTags.getSingleton().init();
+        for (Map.Entry<String, String> fromToNotebookEntry : FromToNotebooks.getSingleton().getNamePairs().entrySet()) {
+            try {
+                // reload in case...
+                RemoteTagStore.getSingleton().init();
+                EMailToTags.getSingleton().init();
 
-            NoteFilter f = new NoteFilter();
-            f.setNotebookGuid(RemoteNotebookStore.getSingleton().getGuid(SOURCE_NOTEBOOK_NAME));
+                NoteFilter f = new NoteFilter();
+                f.setNotebookGuid(RemoteNotebookStore.getSingleton().getGuid(fromToNotebookEntry.getKey()));
 
-            NotesMetadataResultSpec spec = new NotesMetadataResultSpec();
-            spec.setIncludeTitle(true);
-            spec.setIncludeUpdateSequenceNum(true);
-            spec.setIncludeAttributes(true);
+                NotesMetadataResultSpec spec = new NotesMetadataResultSpec();
+                spec.setIncludeTitle(true);
+                spec.setIncludeUpdateSequenceNum(true);
+                spec.setIncludeAttributes(true);
 
-            NotesMetadataList meta = RemoteNoteStore.getSingleton().getNoteStore().findNotesMetadata(f, 0, 100, spec);
-            // → liefert nur Notizen aus genau diesem Notizbuch (per Name gefiltert)
+                NotesMetadataList meta = RemoteNoteStore.getSingleton().getNoteStore().findNotesMetadata(f, 0, 100, spec);
+                // → liefert nur Notizen aus genau diesem Notizbuch (per Name gefiltert)
 
-            List<NoteMetadata> l = meta.getNotes();
+                List<NoteMetadata> l = meta.getNotes();
 
-            for (NoteMetadata nm : l) {
-                try {
-                    if (count < COUNT && (reTag || ! LocalNoteStore.getSingleton().isTagged(nm.getGuid(), nm.getUpdateSequenceNum()))) {
-                        System.out.println("<<<<<<<<<<<<<<<<< count " + count + " >>>>>>>>>>>>>>>>>>>");
-                        LocalNoteStore.getSingleton().unTag(nm.getGuid(), nm.getUpdateSequenceNum());
-                        //System.out.println("attributes:" + nm.getAttributes().getAuthor() + " " + nm.getAttributes().toString());
+                String targetNotebookGuid = RemoteNotebookStore.getSingleton().getGuid(fromToNotebookEntry.getValue());
+                for (NoteMetadata nm : l) {
+                    try {
+                        if (count < COUNT && (reTag || !LocalNoteStore.getSingleton().isTagged(nm.getGuid(), nm.getUpdateSequenceNum()))) {
+                            System.out.println("<<<<<<<<<<<<<<<<< count " + count + " >>>>>>>>>>>>>>>>>>>");
+                            LocalNoteStore.getSingleton().unTag(nm.getGuid(), nm.getUpdateSequenceNum());
+                            //System.out.println("attributes:" + nm.getAttributes().getAuthor() + " " + nm.getAttributes().toString());
 
-                        Note note = LocalNoteStore.getSingleton().load(nm.getGuid(), nm.getUpdateSequenceNum());
-                        if (note == null) {
-                            note = RemoteNoteStore.getSingleton().getNoteStore().getNote(nm.getGuid(), true, true, true, true);
-                            LocalNoteStore.getSingleton().save(note);
-                            System.out.println("note from internet:" + note.getTitle());
+                            Note note = LocalNoteStore.getSingleton().load(nm.getGuid(), nm.getUpdateSequenceNum());
+                            if (note == null) {
+                                note = RemoteNoteStore.getSingleton().getNoteStore().getNote(nm.getGuid(), true, true, true, true);
+                                LocalNoteStore.getSingleton().save(note);
+                                System.out.println("note from internet:" + note.getTitle());
+                                count++;
+                            } else {
+                                System.out.println("note from store:" + note.getTitle());
+                            }
+
+                            System.out.println("aaaaaaaaaaaaaaaaaaaaaaa");
+                            System.out.println("GUID:        " + note.getGuid());
+                            System.out.println("nb GUID:     " + note.getNotebookGuid());
+                            System.out.println("Title:       " + note.getTitle());
+                            System.out.println("Content:     " + (note.getContent() == null ? "NULL" : "OK"));
+                            System.out.println("NotebookGuid:" + note.getNotebookGuid());
+                            System.out.println("TagNames:    " + note.getTagNames());
+                            System.out.println("TagGUIDs:    " + note.getTagGuids());
+                            if (note.getTagNames() != null) {
+                                for (int i = 0; i < note.getTagNames().size(); i++) {
+                                    String t = note.getTagNames().get(i);
+                                    if (t == null) {
+                                        System.out.println("Null-Tag an Position " + i);
+                                    }
+                                }
+                            }
+                            if (note.getTagGuids() != null) {
+                                for (int i = 0; i < note.getTagGuids().size(); i++) {
+                                    String t = note.getTagGuids().get(i);
+                                    if (t == null) {
+                                        System.out.println("Null-Tag an Position " + i);
+                                    }
+                                }
+                            }
+                            System.out.println("aaaaaaaaaaaaaaaaaaaaaa");
+
+                            // title for paper documents
+                            setTitleForPaperDocuments(nm, note);
+
+                            // E-Mails
+                            setTagsFromEMails(nm, note);
+
+                            // tagging from machine learning
+                            String line = setTagsFromPredictions(note);
+
+                            // Keywords
+                            setTagsFromKeywords(note, nm, line);
+
+                            // move to tagging folder
+                            note.setNotebookGuid(targetNotebookGuid);
+
+                            System.out.println("xxxxxxxxxxxxxxxxxxxxxxx");
+                            System.out.println("GUID:        " + note.getGuid());
+                            System.out.println("nb GUID:     " + note.getNotebookGuid());
+                            System.out.println("Title:       " + note.getTitle());
+                            System.out.println("Content:     " + (note.getContent() == null ? "NULL" : "OK"));
+                            System.out.println("NotebookGuid:" + note.getNotebookGuid());
+                            System.out.println("TagNames:    " + note.getTagNames());
+                            System.out.println("TagGUIDs:    " + note.getTagGuids());
+                            if (note.getTagNames() != null) {
+                                for (int i = 0; i < note.getTagNames().size(); i++) {
+                                    String t = note.getTagNames().get(i);
+                                    if (t == null) {
+                                        System.out.println("Null-Tag an Position " + i);
+                                    }
+                                }
+                            }
+                            if (note.getTagGuids() != null) {
+                                for (int i = 0; i < note.getTagGuids().size(); i++) {
+                                    String t = note.getTagGuids().get(i);
+                                    if (t == null) {
+                                        System.out.println("Null-Tag an Position " + i);
+                                    }
+                                }
+                            }
+                            System.out.println("xxxxxxxxxxxxxxxxxxxxxxx");
+
+
+                            note = RemoteNoteStore.getSingleton().getNoteStore().updateNote(note);
                             count++;
+
+                            LocalNoteStore.getSingleton().save(note);
+                            LocalNoteStore.getSingleton().tag(nm.getGuid(), note.getUpdateSequenceNum());
+
+                            // verschieben in tagged folder
+                            for (File file : new File(LocalStore.getSingleton().getInternet_single_notes().toString()).listFiles()) {
+                                if (file.getName().indexOf(note.getGuid()) >= 0) {
+                                    Path target = Paths.get(LocalStore.getSingleton().getInternet_single_tagged().toString(), file.getName());
+                                    Files.move(Paths.get(file.toURI()), target, StandardCopyOption.REPLACE_EXISTING);
+                                }
+                            }
                         } else {
-                            System.out.println("note from store:" + note.getTitle());
-                        }
-
-                        System.out.println("aaaaaaaaaaaaaaaaaaaaaaa");
-                        System.out.println("GUID:        " + note.getGuid());
-                        System.out.println("nb GUID:     " + note.getNotebookGuid());
-                        System.out.println("Title:       " + note.getTitle());
-                        System.out.println("Content:     " + (note.getContent() == null ? "NULL" : "OK"));
-                        System.out.println("NotebookGuid:" + note.getNotebookGuid());
-                        System.out.println("TagNames:    " + note.getTagNames());
-                        System.out.println("TagGUIDs:    " + note.getTagGuids());
-                        if (note.getTagNames() != null) {
-                            for (int i = 0; i < note.getTagNames().size(); i++) {
-                                String t = note.getTagNames().get(i);
-                                if (t == null) {
-                                    System.out.println("Null-Tag an Position " + i);
-                                }
+                            if (count >= COUNT) {
+                                System.out.println("count maximum achieved");
+                                break;
+                            }
+                            if (LocalNoteStore.getSingleton().isTagged(nm.getGuid(), nm.getUpdateSequenceNum())) {
+                                System.out.println("already processed:" + nm.getTitle());
                             }
                         }
-                        if (note.getTagGuids() != null) {
-                            for (int i = 0; i < note.getTagGuids().size(); i++) {
-                                String t = note.getTagGuids().get(i);
-                                if (t == null) {
-                                    System.out.println("Null-Tag an Position " + i);
-                                }
-                            }
-                        }
-                        System.out.println("aaaaaaaaaaaaaaaaaaaaaa");
-
-                        // title for paper documents
-                        setTitleForPaperDocuments(nm, note);
-
-                        // E-Mails
-                        setTagsFromEMails(nm, note);
-
-                        // tagging from machine learning
-                        String line = setTagsFromPredictions(note);
-
-                        // Keywords
-                        setTagsFromKeywords(note, nm, line);
-
-                        // move to tagging folder
-                        note.setNotebookGuid(targetNotebookGuid);
-
-                        System.out.println("xxxxxxxxxxxxxxxxxxxxxxx");
-                        System.out.println("GUID:        " + note.getGuid());
-                        System.out.println("nb GUID:     " + note.getNotebookGuid());
-                        System.out.println("Title:       " + note.getTitle());
-                        System.out.println("Content:     " + (note.getContent() == null ? "NULL" : "OK"));
-                        System.out.println("NotebookGuid:" + note.getNotebookGuid());
-                        System.out.println("TagNames:    " + note.getTagNames());
-                        System.out.println("TagGUIDs:    " + note.getTagGuids());
-                        if (note.getTagNames() != null) {
-                            for (int i = 0; i < note.getTagNames().size(); i++) {
-                                String t = note.getTagNames().get(i);
-                                if (t == null) {
-                                    System.out.println("Null-Tag an Position " + i);
-                                }
-                            }
-                        }
-                        if (note.getTagGuids() != null) {
-                            for (int i = 0; i < note.getTagGuids().size(); i++) {
-                                String t = note.getTagGuids().get(i);
-                                if (t == null) {
-                                    System.out.println("Null-Tag an Position " + i);
-                                }
-                            }
-                        }
-                        System.out.println("xxxxxxxxxxxxxxxxxxxxxxx");
-
-
-                        note = RemoteNoteStore.getSingleton().getNoteStore().updateNote(note);
-                        count++;
-
-                        LocalNoteStore.getSingleton().save(note);
-                        LocalNoteStore.getSingleton().tag(nm.getGuid(), note.getUpdateSequenceNum());
-
-                        // verschieben in tagged folder
-                        for (File file : new File(LocalStore.getSingleton().getInternet_single_notes().toString()).listFiles()) {
-                            if (file.getName().indexOf(note.getGuid()) >= 0) {
-                                Path target = Paths.get(LocalStore.getSingleton().getInternet_single_tagged().toString(), file.getName());
-                                Files.move(Paths.get(file.toURI()), target, StandardCopyOption.REPLACE_EXISTING);
-                            }
-                        }
-                    } else {
-                        if (count >= COUNT) {
-                            System.out.println("count maximum achieved");
-                            break;
-                        }
-                        if (LocalNoteStore.getSingleton().isTagged(nm.getGuid(), nm.getUpdateSequenceNum())) {
-                            System.out.println("already processed:" + nm.getTitle());
+                    } catch (EDAMSystemException e) {
+                        if (e.getMessage() != null && e.getMessage().startsWith("Attempt updateNote where RTE room has already been open")) {
+                            // skip note and try again
+                        } else {
+                            e.printStackTrace(System.out);
+                            throw e;
                         }
                     }
-                } catch (EDAMSystemException e) {
-                    if (e.getMessage() != null && e.getMessage().startsWith("Attempt updateNote where RTE room has already been open")) {
-                        // skip note and try again
-                    } else {
-                        e.printStackTrace(System.out);
-                        throw e;
+                }
+            } catch (Exception e) {
+                e.printStackTrace(System.out);
+                if (e instanceof EDAMUserException) {
+                    EDAMUserException eue = (EDAMUserException) e;
+                    if (eue.getErrorCode() == EDAMErrorCode.AUTH_EXPIRED) {
+                        LocalTokenStore.getSingleton().clear();
+                        System.out.println("Auth expired. Token wurde gelöscht. Bitte neu autorisieren: /evernote/oauth/start");
                     }
                 }
+                throw e;
             }
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-            if (e instanceof EDAMUserException) {
-                EDAMUserException eue = (EDAMUserException) e;
-                if (eue.getErrorCode() == EDAMErrorCode.AUTH_EXPIRED) {
-                    LocalTokenStore.getSingleton().clear();
-                    System.out.println("Auth expired. Token wurde gelöscht. Bitte neu autorisieren: /evernote/oauth/start");
-                }
-            }
-            throw e;
         }
         return count;
     }

@@ -1,9 +1,5 @@
 package com.example.evernote.internet;
 
-import com.evernote.edam.notestore.NoteFilter;
-import com.evernote.edam.notestore.NoteMetadata;
-import com.evernote.edam.notestore.NotesMetadataList;
-import com.evernote.edam.notestore.NotesMetadataResultSpec;
 import com.evernote.edam.type.Note;
 import com.evernote.edam.type.Tag;
 import org.apache.commons.text.StringEscapeUtils;
@@ -12,85 +8,51 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class NoteToTags extends CacheHelper {
+public abstract class NoteToTags extends RemoteNote {
 
     private Map<String, List<String>> map = new HashMap<>();
     private Set<String> tags = new HashSet<>();
 
-    private static final long UPDATE_TIMEOUT = 12 * 60 * 60 * 1000;
-    private static final String NOTEBOOK_AUTOMATION = "10 Automatisierung";
-
-    private String noteTitle = null;
-    private String noteGuid = null;
-
     public NoteToTags(String noteTitle) {
-        this.noteTitle = noteTitle;
+        super (noteTitle);
     }
 
-    public void init() {
-        if (
-                System.currentTimeMillis() - getLastUpdate() > UPDATE_TIMEOUT ||
-                RemoteTagStore.getSingleton().getLastUpdate() > getLastUpdate()
-        ) {
-            System.out.println("init NoteToTags:" + getClass() + ":" + noteTitle);
-            try {
-                //
-                map.clear();
-                tags.clear();
+    void prepare(Note foundNote) {
+        try {
+            //
+            map.clear();
+            tags.clear();
 
-                //
-                if (noteGuid == null) {
-                    String guid = RemoteNotebookStore.getSingleton().getNameToGuid().get(NOTEBOOK_AUTOMATION);
-                    NoteFilter nf = new NoteFilter();
-                    nf.setNotebookGuid(guid);
-                    nf.setWords(noteTitle);
+            Pattern pattern = Pattern.compile("<div>(.*?)</div>");
+            Matcher matcher = pattern.matcher(StringEscapeUtils.unescapeHtml4(foundNote.getContent()));
 
-                    NotesMetadataResultSpec spec = new NotesMetadataResultSpec();
-                    spec.setIncludeTitle(true);
-
-                    NotesMetadataList results = RemoteNoteStore.getSingleton().getNoteStore().findNotesMetadata(nf, 0, 5, spec);
-
-                    for (NoteMetadata nm : results.getNotes()) {
-                        if (nm.getTitle() != null && nm.getTitle().equals(noteTitle)) {
-                            noteGuid = nm.getGuid();
-                            break;
-                        }
-                    }
+            List<String> contents = new ArrayList<>();
+            while (matcher.find()) {
+                String line = matcher.group(1).trim();
+                String[] s = line.split(":");
+                if (s.length == 2) {
+                    String[] s2 = s[1].split(",");
+                    addInfo(s[0], s2);
                 }
-
-                Note foundNote = RemoteNoteStore.getSingleton().getNoteStore().getNote(
-                        noteGuid, true, true, false, false);
-                Pattern pattern = Pattern.compile("<div>(.*?)</div>");
-                Matcher matcher = pattern.matcher(StringEscapeUtils.unescapeHtml4(foundNote.getContent()));
-
-                List<String> contents = new ArrayList<>();
-                while (matcher.find()) {
-                    String line = matcher.group(1).trim();
-                    String[] s = line.split(":");
-                    if (s.length == 2) {
-                        String[] s2 = s[1].split(",");
-                        addInfo(s[0], s2);
-                    }
-                }
-
-                // validate...
-                System.out.println("mapping");
-                for (String eTag : tags) {
-                    boolean found = false;
-                    for (Tag tag : RemoteTagStore.getSingleton().getTags()) {
-                        if (tag.getName().equals(eTag)) {
-                            found = true;
-                            continue;
-                        }
-                    }
-                    if (!found) {
-                        System.out.println("eTag " + eTag + " not found!");
-                    }
-                }
-                store();
-            } catch (Exception e) {
-                e.printStackTrace(System.out);
             }
+
+            // validate...
+            System.out.println("mapping");
+            for (String eTag : tags) {
+                boolean found = false;
+                for (Tag tag : RemoteTagStore.getSingleton().getTags()) {
+                    if (tag.getName().equals(eTag)) {
+                        found = true;
+                        continue;
+                    }
+                }
+                if (!found) {
+                    System.out.println("eTag " + eTag + " not found!");
+                }
+            }
+            store();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
         }
     }
 
@@ -103,7 +65,7 @@ public abstract class NoteToTags extends CacheHelper {
         map.put(key, l);
         for (String tag : eTags) {
             String t = tag.trim();
-            if (t.length() > 0) {
+            if (!t.isEmpty()) {
                 l.add(t);
                 tags.add(t);
             }

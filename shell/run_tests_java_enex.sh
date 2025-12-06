@@ -25,11 +25,13 @@ source "$SHELL_SRC/test_functions/f_test_utilities.sh"
 EPOCH=$(date +%s)
 sleep 1
 
+DATA=$(realpath "$JAVA_SRC/test/resources/$TESTENV/data_test")
+
 # EnexFilesProcessor
 rm -rf "$JAVA_SRC/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
 mkdir "$JAVA_SRC/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/parsed"
 (
-    export DATA=$(realpath "$JAVA_SRC/test/resources/$TESTENV/data_test")
+    export DATA
     cd "../java/runner"
     mvn test -Dtest=EnexFilesProcessorTest
 )
@@ -41,7 +43,7 @@ compare_folders $D1 $D2 $EPOCH
 rm -rf "$JAVA_SRC/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/csv"
 mkdir "$JAVA_SRC/test/resources/$TESTENV/data_test/.jg-evernote/enex-batch/csv"
 (
-    export DATA=$(realpath "$JAVA_SRC/test/resources/$TESTENV/data_test")
+    export DATA
     cd "../java/runner"
     mvn test -Dtest=EnDocsToCSVsTest
 )
