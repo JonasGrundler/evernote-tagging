@@ -1,9 +1,19 @@
 services:
+  data-init:
+    image: data
+    restart: "no"
+    volumes:
+      - ./data:/data
+    command: ["sh", "-c", "cp -an /opt/app/data/.jg-evernote /data/.jg-evernote"]
+
   enex-parse:
     image: java-enex
     restart: "no"
     volumes:
       - ./data:/data
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
     command: ["com.example.evernote.enex.EnexFilesProcessor"]
 
   enex-build-csv:
@@ -12,6 +22,8 @@ services:
     volumes:
       - ./data:/data
     depends_on:
+      data-init:
+        condition: service_completed_successfully
       enex-parse:
         condition: service_completed_successfully
     command: ["com.example.evernote.enex.EnDocsToCSVs"]

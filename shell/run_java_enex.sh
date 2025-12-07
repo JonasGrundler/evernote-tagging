@@ -7,5 +7,6 @@ DATA=~/data
 (
     export DATA
     cd "../java/runner"
-    mvn  -DskipTests exec:java@run-tagging
+    mvn  -DskipTests exec:java@parse-enex
+    mvn  -DskipTests exec:java@build-csv
 )
