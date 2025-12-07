@@ -1,14 +1,12 @@
 package com.example.evernote.internet;
 
 import com.evernote.edam.type.Tag;
-import org.apache.commons.collections4.list.TreeList;
-import org.apache.pdfbox.debugger.ui.Tree;
 
 import java.util.*;
 
 public class RemoteTagStore extends CacheHelper {
 
-    private List<Tag> tags = new TreeList<>();
+    private List<Tag> tags = new ArrayList<>();
     private Map<String, String> nameToGuid = new HashMap<>();
     private Map<String, String> guidToName = new HashMap<>();
 
@@ -36,10 +34,11 @@ public class RemoteTagStore extends CacheHelper {
 
                 tags.addAll(RemoteNoteStore.getSingleton().getNoteStore().listTags());
                 for (Tag tag : tags) {
-                    System.out.println("RemoteTagStore:" + tag.getName() + " - " + tag.getGuid());
+                    //System.out.println("RemoteTagStore:" + tag.getName() + " - " + tag.getGuid());
                     nameToGuid.put(tag.getName(), tag.getGuid());
                     guidToName.put(tag.getGuid(), tag.getName());
                 }
+                Collections.sort(tags);
                 store();
             } catch (Exception e) {
                 e.printStackTrace(System.out);

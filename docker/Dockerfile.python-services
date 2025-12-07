@@ -63,12 +63,7 @@ EOF
 # optional - default ist das home-verzeichnis des users
 # in das DATA-Verzeichnis werden Files unter .jg-evernote gespeichert
 ENV DATA=/data
-
-# --------    
-# config
-# --------
-RUN python local_store.py
-
+VOLUME ["/data"]
 
 # --------    
 # cosolidated server

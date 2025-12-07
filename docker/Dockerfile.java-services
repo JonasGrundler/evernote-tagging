@@ -1,0 +1,31 @@
+# === Build-Stage ==================================================
+FROM maven:3.9-eclipse-temurin-17 AS build
+
+# Arbeitsverzeichnis im Container
+WORKDIR /app
+
+# Erst pom.xml kopieren und Dependencies cachen
+COPY java/runner/pom.xml .
+RUN mvn -B -q dependency:go-offline
+
+# Jetzt den Rest des Projekts
+COPY java/runner/src ./src
+
+# Build (Tests kannst du bei Bedarf weglassen oder behalten)
+RUN mvn -B clean package -DskipTests
+
+# === Runtime-Stage ================================================
+FROM eclipse-temurin:17-jre-alpine
+
+# Verzeichnis, in das dein externes DATA-Volume gemountet wird
+ENV DATA=/data
+VOLUME ["/data"]
+
+WORKDIR /app
+
+# Das gebaute Jar aus der Build-Stage kopieren
+# Passe den Namen ggf. an dein artifactId/version an!
+COPY --from=build /app/target/evernote-tagging-runner-*.jar app.jar
+
+# Startkommando
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

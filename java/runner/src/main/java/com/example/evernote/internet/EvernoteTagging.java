@@ -31,16 +31,14 @@ import java.util.*;
 
 public class EvernoteTagging {
 
-    private static EvernoteTagging et = null;
+    private final InternetHelper internetHelper;
+    private final TrainingClient tc;
 
-    private InternetHelper internetHelper;
-    private TrainingClient tc;
-
-    private boolean reTag = false;
+    private final boolean reTag;
 
     private static final int COUNT = 30; // 180/Tag bei 12 Durchläufen, pro Note werden 2 API Calls gemacht
 
-    private EvernoteTagging(boolean reTag) throws Exception {
+    public EvernoteTagging(boolean reTag) throws Exception {
         this.reTag = reTag;
         internetHelper = new InternetHelper();
 
@@ -58,21 +56,17 @@ public class EvernoteTagging {
         }
     }
 
-    public static void init(boolean reTag) throws Exception {
-        et = new EvernoteTagging(reTag);
-    }
-
     public static void main(String[] args) {
         boolean reTag = args != null && args.length == 1 && args[0].equals("retag=true");
         try {
-            init(reTag);
-            run();
+            EvernoteTagging et = new EvernoteTagging(reTag);
+            et.run();
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
     }
 
-    public static void run() {
+    public void run() {
         try {
             // 1x pro Stunde
             while (true) {
@@ -82,7 +76,7 @@ public class EvernoteTagging {
                 long t = System.currentTimeMillis();
                 try {
                     System.out.println("start processing");
-                    taggingCount = et.tagNotes();
+                    taggingCount = tagNotes();
                 } catch (Exception e) {
                     e.printStackTrace(System.out);
                 }
@@ -98,19 +92,18 @@ public class EvernoteTagging {
                     System.out.println("enough time for retraining and count not excessively used");
                     System.out.println("start moving");
                     try {
-                        moveCount = et.addNotesToCSVAndTrackChanges();
+                        moveCount = addNotesToCSVAndTrackChanges();
                     } catch (Exception e) {
                         e.printStackTrace(System.out);
                     }
                     System.out.println("done moving, moveCount=" + moveCount);
-                    sleep = 60 * 60 * 1000 - (System.currentTimeMillis() - t);
                 }
 
                 // training
                 //if (moveCount > 0) {
                 System.out.println("start training");
                 try {
-                    et.train();
+                    train();
                 } catch (Exception e) {
                     e.printStackTrace(System.out);
                 }
@@ -135,15 +128,13 @@ public class EvernoteTagging {
         }
     }
 
-    public void train() throws Exception {
+    public boolean train() throws Exception {
+        boolean trained = false;
         for (ModelInfo mi : ModelInfo.values()) {
-            tc.train(mi.getScenario());
+            boolean scenarioTrained = tc.train(mi.getScenario());
+            trained = trained | scenarioTrained;
         }
-    }
-
-    private String enmlFromPlain(String text) {
-        String esc = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">" + "<en-note>" + esc + "</en-note>";
+        return trained;
     }
 
     private boolean isNumber(String s) {
@@ -158,7 +149,6 @@ public class EvernoteTagging {
 
         System.out.println("ok add Notes");
         int moveCount = 0;
-        int count = 0;
 
         // read all possible files which have been moved out of the tagging folder... max COUNT
         Set<String> notMovedNotes = new HashSet<>();
@@ -172,7 +162,6 @@ public class EvernoteTagging {
                 for (NoteMetadata nm : meta.getNotes()) {
                     notMovedNotes.add(nm.getGuid());
                 }
-                count++;
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -204,7 +193,7 @@ public class EvernoteTagging {
         }
 
         // append info
-        if (noteguids.size() > 0) {
+        if (!noteguids.isEmpty()) {
             Map<String, List<String>> noteguidToTagguids = new HashMap<>();
             try {
                 NoteFilter filter = new NoteFilter();
@@ -220,7 +209,6 @@ public class EvernoteTagging {
                 for (NoteMetadata nm : result.getNotes()) {
                     noteguidToTagguids.put(nm.getGuid(), nm.getTagGuids());
                 }
-                count++;
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -228,7 +216,6 @@ public class EvernoteTagging {
             for (Map.Entry<String, String> e : noteguids.entrySet()) {
                 try {
                     if (! noteguidToTagguids.containsKey(e.getKey())) {
-                        count++;
                         try {
                             Note note = RemoteNoteStore.getSingleton().getNoteStore().getNote(e.getKey(), false, false, false, false);
                             if (note.isSetDeleted() || ! note.isActive()) {
@@ -254,12 +241,11 @@ public class EvernoteTagging {
                     String line = br.readLine();
                     br.close();
 
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
                     sb.append(line, 0, line.length() - 1);
                     if (noteguidToTagguids.get(e.getKey()) != null) {
                         for (int i = 0; i < noteguidToTagguids.get(e.getKey()).size(); i++) {
                             sb.append(RemoteTagStore.getSingleton().getNameFromGuid(noteguidToTagguids.get(e.getKey()).get(i)));
-                            count++;
                             if (i < noteguidToTagguids.get(e.getKey()).size() - 1) {
                                 sb.append(", ");
                             }
@@ -275,9 +261,9 @@ public class EvernoteTagging {
 
                     // delete from tagged
                     for (File file : files) {
-                        if (file.getName().indexOf(e.getKey()) >= 0) {
+                        if (file.getName().contains(e.getKey())) {
                             if (file.exists()) {
-                                boolean deleted = file.delete();
+                                file.delete();
                             } else {
                                 System.out.println("file to delete " + file.getAbsolutePath() + " didn't exist anymore");
                             }
@@ -432,7 +418,7 @@ public class EvernoteTagging {
 
                             // verschieben in tagged folder
                             for (File file : new File(LocalStore.getSingleton().getInternet_single_notes().toString()).listFiles()) {
-                                if (file.getName().indexOf(note.getGuid()) >= 0) {
+                                if (file.getName().contains(note.getGuid())) {
                                     Path target = Paths.get(LocalStore.getSingleton().getInternet_single_tagged().toString(), file.getName());
                                     Files.move(Paths.get(file.toURI()), target, StandardCopyOption.REPLACE_EXISTING);
                                 }
@@ -457,8 +443,7 @@ public class EvernoteTagging {
                 }
             } catch (Exception e) {
                 e.printStackTrace(System.out);
-                if (e instanceof EDAMUserException) {
-                    EDAMUserException eue = (EDAMUserException) e;
+                if (e instanceof EDAMUserException eue) {
                     if (eue.getErrorCode() == EDAMErrorCode.AUTH_EXPIRED) {
                         LocalTokenStore.getSingleton().clear();
                         System.out.println("Auth expired. Token wurde gelöscht. Bitte neu autorisieren: /evernote/oauth/start");
@@ -501,7 +486,7 @@ public class EvernoteTagging {
             Set<String> selectedPredictedTagsGuids = new HashSet<>();
             for (String t : allPredictedTags) {
                 t = t.trim();
-                if (t.length() == 0) continue;
+                if (t.isEmpty()) continue;
                 if (isNumber(t)) continue;
                 if (t.equals("done")) continue;
                 String tagguid = RemoteTagStore.getSingleton().getGuidFromName(t);
@@ -540,7 +525,7 @@ public class EvernoteTagging {
             }
         }
 
-        if (missingGuids.size() > 0) {
+        if (!missingGuids.isEmpty()) {
             for (String guid : missingGuids) {
                 if (guid != null) {
                     note.addToTagGuids(guid);
@@ -567,9 +552,8 @@ public class EvernoteTagging {
     }
 
     private void setTagsFromKeywords(Note note, NoteMetadata nm, String line) {
-        List<String> missingTags = new ArrayList<>();
 
-        missingTags.addAll(KeywordsToTags.getSingleton().getTagsForKeyword(line));
+        List<String> missingTags = new ArrayList<>(KeywordsToTags.getSingleton().getTagsForKeyword(line));
 
         setTagsFromTagnames(nm, note, missingTags);
     }
@@ -585,18 +569,16 @@ public class EvernoteTagging {
         if (
                 nm.getAttributes() != null &&
                 (nm.getAttributes().getSource() == null || source.equals(nm.getAttributes().getSource())) &&
-                (nm.getTitle() == null || nm.getTitle().equals(title) || nm.getTitle().equals(""))) {
+                (nm.getTitle() == null || nm.getTitle().equals(title) || nm.getTitle().isEmpty())) {
             System.out.println("----------------- reco -------------------");
             try {
-                int rn = 0;
                 if (
                         note.getResources() != null &&
-                        note.getResources().size() > 0
+                        !note.getResources().isEmpty()
                 ) {
 
                     Resource r = note.getResources().get(0);
 
-                    rn++;
                     BufferedImage top = null;
                     try {
                         BufferedImage img = ImageIO.read(new ByteArrayInputStream(r.getData().getBody()));

@@ -3,7 +3,7 @@
 set -e
 
 SHELL_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TESTENV="services"
+TESTENV="runner"
 JAVA_SRC="$(realpath "$SHELL_SRC/../java/runner/src")"
 VENV_PATH=~/python-venv/.test-venv
 PYTHON_SRC=$(realpath "$SHELL_SRC/../python/src")

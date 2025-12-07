@@ -1,0 +1,6 @@
+file:411-1989.enex
+title:1989.0002 Sparbuch Jonas Singen
+author:null
+tags:Sparkasse Singen
+source:mobile.android
+created:20160213T130338Z

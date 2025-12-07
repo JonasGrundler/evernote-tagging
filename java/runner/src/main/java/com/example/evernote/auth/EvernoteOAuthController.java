@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class EvernoteOAuthController {
-    @Value("${trocr.url:http://127.0.0.1:8000}")
-    private String trocrBaseUrl;
-
     @Value("${evernote.consumer.key}")
     private String consumerKey;
     @Value("${evernote.consumer.secret}")

@@ -1,0 +1,6 @@
+file:395-2005 en.enex
+title:2005.digitalOnly.0007 Kontostandsmitteilung zum 30.12.2005 9016056 87
+author:Jonas Grundler
+tags:Deutsche Bank
+source:null
+created:20141207T120910Z

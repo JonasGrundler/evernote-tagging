@@ -18,15 +18,13 @@ import java.util.List;
 
 public class ServicesClient {
 
-    private final String baseUrl = "http://127.0.0.1:8000/";
+    private final String baseUrl = System.getenv().getOrDefault("PY_BASE_URL", "http://localhost:8000");
     private final String ocr = "ocr";
     private final String train = "train";
     private final String infer = "infer";
     private final String ocrImages = "ocr_images";
 
     private final HttpClient http;
-
-    //private BufferedReader pyOut = null;
 
     private static final ServicesClient singleton;
 
@@ -64,7 +62,7 @@ public class ServicesClient {
 
         String header = "multipart/form-data; boundary=" + boundary;
 
-        HttpRequest req = null;
+        HttpRequest req;
         HttpResponse res = null;
 
         try {

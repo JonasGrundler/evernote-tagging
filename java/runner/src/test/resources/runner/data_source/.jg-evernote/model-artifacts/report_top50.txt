@@ -1,0 +1,32 @@
+=== REPORT (micro/macro) ===
+                          precision    recall  f1-score   support
+
+           Advanzia Bank       1.00      1.00      1.00         2
+                   Apple       0.75      1.00      0.86         3
+                     CGI       0.50      1.00      0.67         1
+                  Google       0.83      1.00      0.91         5
+        HV Atrium 4 Home       0.40      1.00      0.57         2
+HV Felbel Hausverwaltung       1.00      1.00      1.00         5
+                     Jun       1.00      0.25      0.40         4
+                  Leonie       0.67      1.00      0.80         2
+                  Lilian       0.33      0.33      0.33         3
+             Merz-Schule       1.00      1.00      1.00         3
+                 Novatec       1.00      1.00      1.00         1
+                  PayPal       0.70      1.00      0.82         7
+                     SSB       1.00      1.00      1.00         2
+          Sparda-Bank BW       1.00      0.57      0.73         7
+                  Steuer       0.50      0.44      0.47         9
+ Whg 1 Karl-Pfaff-Straße       0.13      1.00      0.24         2
+     Whg Leuschnerstraße       0.83      1.00      0.91         5
+     Whg Neue Weinsteige       0.40      1.00      0.57         4
+        Whg Schwabstraße       1.00      0.25      0.40         4
+  Whgn Karl-Pfaff-Straße       0.25      0.25      0.25         4
+                 cloudHQ       0.75      1.00      0.86         3
+               fluege.de       0.50      1.00      0.67         1
+                     nan       0.54      1.00      0.70         7
+                   netgo       1.00      0.88      0.93         8
+
+               micro avg       0.61      0.79      0.69        94
+               macro avg       0.71      0.83      0.71        94
+            weighted avg       0.73      0.79      0.71        94
+             samples avg       0.64      0.78      0.68        94

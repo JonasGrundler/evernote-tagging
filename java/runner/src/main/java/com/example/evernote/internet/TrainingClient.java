@@ -29,8 +29,8 @@ public class TrainingClient {
         }
     }
 
-    public int train(int scenario) throws Exception {
-        int returnValue = 0;
+    public boolean train(int scenario) throws Exception {
+        boolean trained = false;
         Path pTracking = getPath(scenario, LAST_TRAINING_FILENAME_BASE);
         if (! pTracking.toFile().exists()) {
             pTracking.toFile().createNewFile();
@@ -55,6 +55,7 @@ public class TrainingClient {
                 if (hour >= mi.gethTrainingStartAllowedMin() && hour <= mi.gethTrainingStartAllowedMax()) {
                     try {
                         doTraining(scenario);
+                        trained = true;
                         try {
                             pChanges.toFile().delete();
                             pTracking.toFile().setLastModified(t);
@@ -74,7 +75,7 @@ public class TrainingClient {
             System.out.println("scenario " + mi.getScenario() + " : last training " + diff + " ms ago, which is less than " + mi.getMaxAgeMs());
         }
 
-        return returnValue;
+        return trained;
     }
 
     private Path getPath(int scenario, String id) {

@@ -1,0 +1,17 @@
+services:
+  enex-parse:
+    image: java-enex
+    restart: "no"
+    volumes:
+      - ./data:/data
+    command: ["com.example.evernote.enex.EnexFilesProcessor"]
+
+  enex-build-csv:
+    image: java-enex
+    restart: "no"
+    volumes:
+      - ./data:/data
+    depends_on:
+      enex-parse:
+        condition: service_completed_successfully
+    command: ["com.example.evernote.enex.EnDocsToCSVs"]

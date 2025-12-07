@@ -1,0 +1,8 @@
+# Kleines, schlankes Image reicht, wir brauchen nur 'cp'
+FROM alpine:3.20
+
+# Verzeichnis, in das wir die Seed-Daten legen
+RUN mkdir -p /opt/app/data
+
+# Alles aus deinem lokalen data-seed/ ins Image kopieren
+COPY data/. /opt/app/data/

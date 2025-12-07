@@ -30,37 +30,40 @@ public class EvernoteTaggingTest {
      */
 
     public static final String ABLAGE = System.getenv().getOrDefault("TEST_ABLAGE", "98 Ablage");
+    private static EvernoteTagging ET;
+    private static Map.Entry<String, String> FROM_TO_ENTRY;
 
     @BeforeAll
     static void setUp() {
+        System.out.println("set up");
         boolean initialized = false;
         try {
-            EvernoteTagging.init(false);
+            ET = new EvernoteTagging(false);
         } catch (Exception e) {
             e.printStackTrace(System.out);
             fail("Exception when initializing.");
         }
 
+        System.out.println("clean folder");
         // leeren der Notebooks (nicht: ABLAGE)
         Set<Map.Entry<String, String>> fromTo = FromToNotebooks.getSingleton().getNamePairs().entrySet();
         assertFalse(fromTo.isEmpty(), "No From-To-Notebook Mapping found.");
         String toGuid = RemoteNotebookStore.getSingleton().getGuid(ABLAGE);
         assertNotNull(toGuid, "Notebook not found:" + ABLAGE);
-        for (Map.Entry<String, String> e : fromTo) {
-            String fromGuid = RemoteNotebookStore.getSingleton().getGuid(e.getKey());
-            assertNotNull(fromGuid, "Notebook not found:" + e.getKey());
-            moveNotes(fromGuid, toGuid);
-            fromGuid = RemoteNotebookStore.getSingleton().getGuid(e.getValue());
-            assertNotNull(fromGuid, "Notebook not found:" + e.getValue());
-            moveNotes(fromGuid, toGuid);
-        }
+        FROM_TO_ENTRY = fromTo.iterator().next();
+        moveNotes(FROM_TO_ENTRY.getKey(), ABLAGE);
+        moveNotes(FROM_TO_ENTRY.getValue(), ABLAGE);
 
+        System.out.println("create note");
         // erstellen der Testnotes
         Map.Entry<String, String> fromToEntry = fromTo.iterator().next();
         createNotes(fromToEntry.getKey());
+
+        System.out.println("setup done");
     }
 
     private static void moveNotes(String from, String to) {
+        System.out.println("move from " + from + " to " + to);
         try {
             NoteFilter f = new NoteFilter();
             f.setNotebookGuid(RemoteNotebookStore.getSingleton().getGuid(from));
@@ -71,6 +74,8 @@ public class EvernoteTaggingTest {
             // → liefert nur Notizen aus genau diesem Notizbuch (per Name gefiltert)
 
             List<NoteMetadata> l = meta.getNotes();
+
+            System.out.println("found:" + l.size());
 
             String targetNotebookGuid = RemoteNotebookStore.getSingleton().getGuid(to);
             for (NoteMetadata nm : l) {
@@ -86,6 +91,25 @@ public class EvernoteTaggingTest {
             e.printStackTrace(System.out);
             fail("Could not move note.");
         }
+    }
+
+    private int getNotCount(String notebook) {
+        try {
+            NoteFilter f = new NoteFilter();
+            f.setNotebookGuid(RemoteNotebookStore.getSingleton().getGuid(notebook));
+
+            NotesMetadataResultSpec spec = new NotesMetadataResultSpec();
+
+            NotesMetadataList meta = RemoteNoteStore.getSingleton().getNoteStore().findNotesMetadata(f, 0, 100, spec);
+            // → liefert nur Notizen aus genau diesem Notizbuch (per Name gefiltert)
+
+            return meta.getNotes().size();
+
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+            fail("Could not move note.");
+        }
+        return -1;
     }
 
     private static void createNotes(String to) {
@@ -117,6 +141,14 @@ public class EvernoteTaggingTest {
     @DisplayName("testTagging(): Tagging einer Note")
     void testTagging() throws Exception {
         assertTrue(true);
+        int tcount = ET.tagNotes();
+        assertEquals(1, tcount);
+        assertEquals(1, getNotCount(FROM_TO_ENTRY.getValue()));
+        moveNotes(FROM_TO_ENTRY.getValue(), ABLAGE);
+        int mcount = ET.addNotesToCSVAndTrackChanges();
+        assertEquals(1, mcount);
+        boolean trained = ET.train();
+        assertTrue(trained);
     }
 
 }
